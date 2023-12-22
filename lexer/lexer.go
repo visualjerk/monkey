@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"monkey/token"
+	"slices"
 )
 
 type Lexer struct {
@@ -13,11 +14,13 @@ type Lexer struct {
 
 func New(input string) *Lexer {
 	lexer := &Lexer{input: input}
-	lexer.readNextChar()
+	lexer.readChar()
 	return lexer
 }
 
 func (lexer *Lexer) NextToken() token.Token {
+	lexer.skipWhitespace()
+
 	var tokenType token.TokenType
 	tokenLiteral := string(lexer.char)
 
@@ -41,9 +44,31 @@ func (lexer *Lexer) NextToken() token.Token {
 	case 0:
 		tokenType = token.EOF
 		tokenLiteral = ""
+	default:
+		if isLetter(lexer.char) {
+			tokenLiteral = lexer.readIdentifier()
+			tokenType = token.LookupIdentifier(tokenLiteral)
+
+			return token.Token{
+				Type:    tokenType,
+				Literal: tokenLiteral,
+			}
+		}
+		if isDigit(lexer.char) {
+			tokenLiteral = lexer.readNumber()
+			tokenType = token.INT
+
+			return token.Token{
+				Type:    tokenType,
+				Literal: tokenLiteral,
+			}
+		}
+
+		tokenType = token.ILLEGAL
+		tokenLiteral = ""
 	}
 
-	lexer.readNextChar()
+	lexer.readChar()
 
 	return token.Token{
 		Type:    tokenType,
@@ -51,7 +76,7 @@ func (lexer *Lexer) NextToken() token.Token {
 	}
 }
 
-func (lexer *Lexer) readNextChar() {
+func (lexer *Lexer) readChar() {
 	if lexer.readPosition >= len(lexer.input) {
 		lexer.char = 0
 	} else {
@@ -59,4 +84,42 @@ func (lexer *Lexer) readNextChar() {
 	}
 	lexer.position = lexer.readPosition
 	lexer.readPosition += 1
+}
+
+func (lexer *Lexer) readIdentifier() string {
+	position := lexer.position
+
+	for isLetter(lexer.char) {
+		lexer.readChar()
+	}
+
+	return lexer.input[position:lexer.position]
+}
+
+func (lexer *Lexer) readNumber() string {
+	position := lexer.position
+
+	for isDigit(lexer.char) {
+		lexer.readChar()
+	}
+
+	return lexer.input[position:lexer.position]
+}
+
+func (lexer *Lexer) skipWhitespace() {
+	for isWhitespace(lexer.char) {
+		lexer.readChar()
+	}
+}
+
+func isWhitespace(char byte) bool {
+	return slices.Contains([]byte{' ', '\t', '\n', '\r'}, char)
+}
+
+func isLetter(char byte) bool {
+	return 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z' || char == '_'
+}
+
+func isDigit(char byte) bool {
+	return '0' <= char && char <= '9'
 }
