@@ -21,58 +21,46 @@ func New(input string) *Lexer {
 func (lexer *Lexer) NextToken() token.Token {
 	lexer.skipWhitespace()
 
-	var tokenType token.TokenType
-	tokenLiteral := string(lexer.char)
+	if tokenType, ok := token.LookupOperatorsAndDelimiters(lexer.char); ok {
+		tokenLiteral := string(lexer.char)
 
-	switch lexer.char {
-	case '=':
-		tokenType = token.ASSIGN
-	case ';':
-		tokenType = token.SEMICOLON
-	case '(':
-		tokenType = token.LPAREN
-	case ')':
-		tokenType = token.RPAREN
-	case '{':
-		tokenType = token.LBRACE
-	case '}':
-		tokenType = token.RBRACE
-	case ',':
-		tokenType = token.COMMA
-	case '+':
-		tokenType = token.PLUS
-	case 0:
-		tokenType = token.EOF
-		tokenLiteral = ""
-	default:
-		if isLetter(lexer.char) {
-			tokenLiteral = lexer.readIdentifier()
-			tokenType = token.LookupIdentifier(tokenLiteral)
-
-			return token.Token{
-				Type:    tokenType,
-				Literal: tokenLiteral,
-			}
-		}
-		if isDigit(lexer.char) {
-			tokenLiteral = lexer.readNumber()
-			tokenType = token.INT
-
-			return token.Token{
-				Type:    tokenType,
-				Literal: tokenLiteral,
-			}
+		if tokenType == token.EOF {
+			tokenLiteral = ""
 		}
 
-		tokenType = token.ILLEGAL
-		tokenLiteral = ""
+		lexer.readChar()
+
+		return token.Token{
+			Type:    tokenType,
+			Literal: tokenLiteral,
+		}
+	}
+
+	if isLetter(lexer.char) {
+		tokenLiteral := lexer.readIdentifier()
+		tokenType := token.LookupIdentifier(tokenLiteral)
+
+		return token.Token{
+			Type:    tokenType,
+			Literal: tokenLiteral,
+		}
+	}
+
+	if isDigit(lexer.char) {
+		tokenLiteral := lexer.readNumber()
+		tokenType := token.INT
+
+		return token.Token{
+			Type:    tokenType,
+			Literal: tokenLiteral,
+		}
 	}
 
 	lexer.readChar()
 
 	return token.Token{
-		Type:    tokenType,
-		Literal: tokenLiteral,
+		Type:    token.ILLEGAL,
+		Literal: "",
 	}
 }
 

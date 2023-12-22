@@ -33,6 +33,33 @@ const (
 	LET      TokenType = "LET"
 )
 
+var operators = map[byte]TokenType{
+	'=': ASSIGN,
+	'+': PLUS,
+}
+
+var delimiters = map[byte]TokenType{
+	',': COMMA,
+	';': SEMICOLON,
+	'(': LPAREN,
+	')': RPAREN,
+	'{': LBRACE,
+	'}': RBRACE,
+	0:   EOF,
+}
+
+func LookupOperatorsAndDelimiters(char byte) (TokenType, bool) {
+	if tokenType, ok := operators[char]; ok {
+		return tokenType, true
+	}
+
+	if tokenType, ok := delimiters[char]; ok {
+		return tokenType, true
+	}
+
+	return ILLEGAL, false
+}
+
 var keywords = map[string]TokenType{
 	"fn":  FUNCTION,
 	"let": LET,
