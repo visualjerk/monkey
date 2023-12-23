@@ -19,7 +19,8 @@ const (
 	ASSIGN TokenType = "="
 	PLUS   TokenType = "+"
 
-	EQ TokenType = "=="
+	EQ     TokenType = "=="
+	NOT_EQ TokenType = "!="
 
 	// Delimiters
 	COMMA     TokenType = ","
@@ -57,6 +58,7 @@ func LookupOneCharToken(char byte) (TokenType, bool) {
 
 var twoCharTokens = map[string]TokenType{
 	"==": EQ,
+	"!=": NOT_EQ,
 }
 
 func LookupTwoCharToken(chars string) (TokenType, bool) {

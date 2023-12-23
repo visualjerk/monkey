@@ -16,6 +16,7 @@ func TestNextToken(t *testing.T) {
 		};
 		
 	5==10
+	5!=10
 
 	let result = add(five, ten);
 	`
@@ -55,6 +56,10 @@ func TestNextToken(t *testing.T) {
 
 		{token.INT, "5"},
 		{token.EQ, "=="},
+		{token.INT, "10"},
+
+		{token.INT, "5"},
+		{token.NOT_EQ, "!="},
 		{token.INT, "10"},
 
 		{token.LET, "let"},
