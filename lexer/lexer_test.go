@@ -10,10 +10,12 @@ import (
 func TestNextToken(t *testing.T) {
 	input := `let five = 5;
 	let ten = 10;
-
+	
 	let add = fn(x, y) {
 		x + y;
-	};
+		};
+		
+	5==10
 
 	let result = add(five, ten);
 	`
@@ -50,6 +52,10 @@ func TestNextToken(t *testing.T) {
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
+
+		{token.INT, "5"},
+		{token.EQ, "=="},
+		{token.INT, "10"},
 
 		{token.LET, "let"},
 		{token.IDENT, "result"},

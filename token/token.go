@@ -19,6 +19,8 @@ const (
 	ASSIGN TokenType = "="
 	PLUS   TokenType = "+"
 
+	EQ TokenType = "=="
+
 	// Delimiters
 	COMMA     TokenType = ","
 	SEMICOLON TokenType = ";"
@@ -33,27 +35,32 @@ const (
 	LET      TokenType = "LET"
 )
 
-var operators = map[byte]TokenType{
+var oneCharTokens = map[byte]TokenType{
+	0:   EOF,
 	'=': ASSIGN,
 	'+': PLUS,
-}
-
-var delimiters = map[byte]TokenType{
 	',': COMMA,
 	';': SEMICOLON,
 	'(': LPAREN,
 	')': RPAREN,
 	'{': LBRACE,
 	'}': RBRACE,
-	0:   EOF,
 }
 
-func LookupOperatorsAndDelimiters(char byte) (TokenType, bool) {
-	if tokenType, ok := operators[char]; ok {
+func LookupOneCharToken(char byte) (TokenType, bool) {
+	if tokenType, ok := oneCharTokens[char]; ok {
 		return tokenType, true
 	}
 
-	if tokenType, ok := delimiters[char]; ok {
+	return ILLEGAL, false
+}
+
+var twoCharTokens = map[string]TokenType{
+	"==": EQ,
+}
+
+func LookupTwoCharToken(chars string) (TokenType, bool) {
+	if tokenType, ok := twoCharTokens[chars]; ok {
 		return tokenType, true
 	}
 

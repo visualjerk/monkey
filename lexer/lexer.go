@@ -21,7 +21,20 @@ func New(input string) *Lexer {
 func (lexer *Lexer) NextToken() token.Token {
 	lexer.skipWhitespace()
 
-	if tokenType, ok := token.LookupOperatorsAndDelimiters(lexer.char); ok {
+	nextChar := lexer.peakChar()
+	twoCharLiteral := string(lexer.char) + string(nextChar)
+
+	if tokenType, ok := token.LookupTwoCharToken(twoCharLiteral); ok {
+		lexer.readChar()
+		lexer.readChar()
+
+		return token.Token{
+			Type:    tokenType,
+			Literal: twoCharLiteral,
+		}
+	}
+
+	if tokenType, ok := token.LookupOneCharToken(lexer.char); ok {
 		tokenLiteral := string(lexer.char)
 
 		if tokenType == token.EOF {
@@ -72,6 +85,13 @@ func (lexer *Lexer) readChar() {
 	}
 	lexer.position = lexer.readPosition
 	lexer.readPosition += 1
+}
+
+func (lexer *Lexer) peakChar() byte {
+	if lexer.readPosition >= len(lexer.input) {
+		return 0
+	}
+	return lexer.input[lexer.readPosition]
 }
 
 func (lexer *Lexer) readIdentifier() string {
