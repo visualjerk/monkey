@@ -18,7 +18,7 @@ func New(input string) *Lexer {
 	return lexer
 }
 
-func (lexer *Lexer) NextToken() token.Token {
+func (lexer *Lexer) GetNextToken() token.Token {
 	lexer.skipWhitespace()
 
 	nextChar := lexer.peakChar()

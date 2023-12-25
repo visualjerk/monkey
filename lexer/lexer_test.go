@@ -116,7 +116,7 @@ func TestNextToken(t *testing.T) {
 	lexer := New(input)
 
 	for _, result := range results {
-		actualToken := lexer.NextToken()
+		actualToken := lexer.GetNextToken()
 		expectedToken := token.Token{
 			Type:    result.expectedType,
 			Literal: result.expectedLiteral,
