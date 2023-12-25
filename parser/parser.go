@@ -85,9 +85,43 @@ func (parser *Parser) parseIdentifier() *ast.Identifier {
 }
 
 func (parser *Parser) parseExpression() ast.Expression {
-	if parser.currentToken.Type != token.INT {
-		parser.handleError("unknown expression!")
+	if parser.currentToken.Type == token.INT {
+		if parser.nextToken.Type == token.PLUS {
+			return parser.parseAddExpression()
+		}
+
+		return parser.parseInt()
 	}
+
+	parser.handleError("unknown expression!")
+	return nil
+}
+
+func (parser *Parser) parseAddExpression() ast.Expression {
+	left := parser.parseInt()
+	parser.advanceTokens()
+
+	if parser.currentToken.Type != token.PLUS {
+		parser.handleError("missing plus sign!")
+	}
+
+	tok := parser.currentToken
+	parser.advanceTokens()
+
+	right := parser.parseExpression()
+
+	return &ast.AddExpression{
+		Token: tok,
+		Left:  left,
+		Right: right,
+	}
+}
+
+func (parser *Parser) parseInt() ast.Expression {
+	if parser.currentToken.Type != token.INT {
+		parser.handleError("not an int!")
+	}
+
 	return &ast.Int{
 		Token: parser.currentToken,
 		Value: parser.currentToken.Literal,

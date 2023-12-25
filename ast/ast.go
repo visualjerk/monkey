@@ -57,3 +57,14 @@ func (int *Int) expressionNode() {}
 func (int *Int) TokenLiteral() string {
 	return int.Token.Literal
 }
+
+type AddExpression struct {
+	Token token.Token // the token.PLUS token
+	Left  Expression
+	Right Expression
+}
+
+func (addExpression *AddExpression) expressionNode() {}
+func (addExpression *AddExpression) TokenLiteral() string {
+	return addExpression.Token.Literal
+}

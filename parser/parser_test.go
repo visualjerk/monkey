@@ -12,7 +12,7 @@ import (
 func TestParseProgram(t *testing.T) {
 	input := `
 	let x = 5;
-	let y = 10;
+	let y = 10 + 5;
 `
 
 	expected := &ast.Program{
@@ -49,12 +49,25 @@ func TestParseProgram(t *testing.T) {
 					},
 					Value: "y",
 				},
-				Value: &ast.Int{
+				Value: &ast.AddExpression{
 					Token: token.Token{
-						Type:    token.INT,
-						Literal: "10",
+						Type:    token.PLUS,
+						Literal: "+",
 					},
-					Value: "10",
+					Left: &ast.Int{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "10",
+						},
+						Value: "10",
+					},
+					Right: &ast.Int{
+						Token: token.Token{
+							Type:    token.INT,
+							Literal: "5",
+						},
+						Value: "5",
+					},
 				},
 			},
 		},
