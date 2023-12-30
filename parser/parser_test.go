@@ -78,3 +78,24 @@ func TestParseProgram(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+func TestParserErrors(t *testing.T) {
+	input := `
+	let x 5;
+	let = 10 + 5;
+	let 10;
+`
+
+	expected := []string{
+		"expected next token to be =, got INT instead",
+		"expected next token to be IDENT, got = instead",
+		"expected next token to be IDENT, got INT instead",
+		"expected next token to be =, got INT instead",
+	}
+
+	parser := New(lexer.New(input))
+	parser.ParseProgram()
+	actual := parser.GetErrors()
+
+	assert.Equal(t, expected, actual)
+}

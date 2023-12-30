@@ -12,6 +12,8 @@ type Parser struct {
 
 	currentToken token.Token
 	nextToken    token.Token
+
+	errors []string
 }
 
 func New(lex *lexer.Lexer) *Parser {
@@ -22,11 +24,6 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.advanceTokens()
 
 	return parser
-}
-
-func (parser *Parser) advanceTokens() {
-	parser.currentToken = parser.nextToken
-	parser.nextToken = parser.lexer.GetNextToken()
 }
 
 func (parser *Parser) ParseProgram() *ast.Program {
@@ -45,6 +42,10 @@ func (parser *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
+func (parser *Parser) GetErrors() []string {
+	return parser.errors
+}
+
 func (parser *Parser) parseStatement() ast.Statement {
 	switch parser.currentToken.Type {
 	case token.LET:
@@ -56,16 +57,13 @@ func (parser *Parser) parseStatement() ast.Statement {
 
 func (parser *Parser) parseLetStatement() ast.Statement {
 	tok := parser.currentToken
-	parser.advanceTokens()
 
+	parser.advanceToExpectedToken(token.IDENT)
 	identifier := parser.parseIdentifier()
-	parser.advanceTokens()
 
-	if !parser.currentTokenIs(token.ASSIGN) {
-		parser.handleError("missing equal sign!")
-	}
-	parser.advanceTokens()
+	parser.advanceToExpectedToken(token.ASSIGN)
 
+	parser.advanceTokens()
 	expression := parser.parseExpression()
 
 	return &ast.LetStatement{
@@ -76,9 +74,6 @@ func (parser *Parser) parseLetStatement() ast.Statement {
 }
 
 func (parser *Parser) parseIdentifier() *ast.Identifier {
-	if !parser.currentTokenIs(token.IDENT) {
-		parser.handleError("missing identifier!")
-	}
 	return &ast.Identifier{
 		Token: parser.currentToken,
 		Value: parser.currentToken.Literal,
@@ -94,17 +89,14 @@ func (parser *Parser) parseExpression() ast.Expression {
 		return parser.parseInt()
 	}
 
-	parser.handleError("unknown expression!")
+	// parser.expectError("unknown expression!")
 	return nil
 }
 
 func (parser *Parser) parseAddExpression() ast.Expression {
 	left := parser.parseInt()
-	parser.advanceTokens()
 
-	if !parser.currentTokenIs(token.PLUS) {
-		parser.handleError("missing plus sign!")
-	}
+	parser.advanceToExpectedToken(token.PLUS)
 
 	tok := parser.currentToken
 	parser.advanceTokens()
@@ -120,13 +112,27 @@ func (parser *Parser) parseAddExpression() ast.Expression {
 
 func (parser *Parser) parseInt() ast.Expression {
 	if !parser.currentTokenIs(token.INT) {
-		parser.handleError("not an int!")
+		// parser.expectError("not an int!")
 	}
 
 	return &ast.Int{
 		Token: parser.currentToken,
 		Value: parser.currentToken.Literal,
 	}
+}
+
+func (parser *Parser) advanceTokens() {
+	parser.currentToken = parser.nextToken
+	parser.nextToken = parser.lexer.GetNextToken()
+}
+
+func (parser *Parser) advanceToExpectedToken(tokenType token.TokenType) bool {
+	if parser.nextTokenIs(tokenType) {
+		parser.advanceTokens()
+		return true
+	}
+	parser.tokenTypeError(tokenType)
+	return false
 }
 
 func (parser *Parser) currentTokenIs(tokenType token.TokenType) bool {
@@ -137,7 +143,11 @@ func (parser *Parser) nextTokenIs(tokenType token.TokenType) bool {
 	return parser.nextToken.Type == tokenType
 }
 
-func (parser *Parser) handleError(message string) {
-	fmt.Printf("unexpected token %+v\n", parser.currentToken)
-	panic(message)
+func (parser *Parser) tokenTypeError(tokenType token.TokenType) {
+	message := fmt.Sprintf(
+		"expected next token to be %s, got %s instead",
+		tokenType,
+		parser.nextToken.Type,
+	)
+	parser.errors = append(parser.errors, message)
 }
