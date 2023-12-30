@@ -32,7 +32,7 @@ func (parser *Parser) advanceTokens() {
 func (parser *Parser) ParseProgram() *ast.Program {
 	program := &ast.Program{}
 
-	for parser.currentToken.Type != token.EOF {
+	for !parser.currentTokenIs(token.EOF) {
 		statement := parser.parseStatement()
 
 		if statement != nil {
@@ -46,11 +46,12 @@ func (parser *Parser) ParseProgram() *ast.Program {
 }
 
 func (parser *Parser) parseStatement() ast.Statement {
-	if parser.currentToken.Type == token.LET {
+	switch parser.currentToken.Type {
+	case token.LET:
 		return parser.parseLetStatement()
+	default:
+		return nil
 	}
-
-	return nil
 }
 
 func (parser *Parser) parseLetStatement() ast.Statement {
@@ -60,7 +61,7 @@ func (parser *Parser) parseLetStatement() ast.Statement {
 	identifier := parser.parseIdentifier()
 	parser.advanceTokens()
 
-	if parser.currentToken.Type != token.ASSIGN {
+	if !parser.currentTokenIs(token.ASSIGN) {
 		parser.handleError("missing equal sign!")
 	}
 	parser.advanceTokens()
@@ -75,7 +76,7 @@ func (parser *Parser) parseLetStatement() ast.Statement {
 }
 
 func (parser *Parser) parseIdentifier() *ast.Identifier {
-	if parser.currentToken.Type != token.IDENT {
+	if !parser.currentTokenIs(token.IDENT) {
 		parser.handleError("missing identifier!")
 	}
 	return &ast.Identifier{
@@ -85,8 +86,8 @@ func (parser *Parser) parseIdentifier() *ast.Identifier {
 }
 
 func (parser *Parser) parseExpression() ast.Expression {
-	if parser.currentToken.Type == token.INT {
-		if parser.nextToken.Type == token.PLUS {
+	if parser.currentTokenIs(token.INT) {
+		if parser.nextTokenIs(token.PLUS) {
 			return parser.parseAddExpression()
 		}
 
@@ -101,7 +102,7 @@ func (parser *Parser) parseAddExpression() ast.Expression {
 	left := parser.parseInt()
 	parser.advanceTokens()
 
-	if parser.currentToken.Type != token.PLUS {
+	if !parser.currentTokenIs(token.PLUS) {
 		parser.handleError("missing plus sign!")
 	}
 
@@ -118,7 +119,7 @@ func (parser *Parser) parseAddExpression() ast.Expression {
 }
 
 func (parser *Parser) parseInt() ast.Expression {
-	if parser.currentToken.Type != token.INT {
+	if !parser.currentTokenIs(token.INT) {
 		parser.handleError("not an int!")
 	}
 
@@ -126,6 +127,14 @@ func (parser *Parser) parseInt() ast.Expression {
 		Token: parser.currentToken,
 		Value: parser.currentToken.Literal,
 	}
+}
+
+func (parser *Parser) currentTokenIs(tokenType token.TokenType) bool {
+	return parser.currentToken.Type == tokenType
+}
+
+func (parser *Parser) nextTokenIs(tokenType token.TokenType) bool {
+	return parser.nextToken.Type == tokenType
 }
 
 func (parser *Parser) handleError(message string) {
