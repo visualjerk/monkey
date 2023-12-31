@@ -50,6 +50,8 @@ func (parser *Parser) parseStatement() ast.Statement {
 	switch parser.currentToken.Type {
 	case token.LET:
 		return parser.parseLetStatement()
+	case token.RETURN:
+		return parser.parseReturnStatement()
 	default:
 		return nil
 	}
@@ -69,6 +71,18 @@ func (parser *Parser) parseLetStatement() ast.Statement {
 	return &ast.LetStatement{
 		Token: tok,
 		Name:  identifier,
+		Value: expression,
+	}
+}
+
+func (parser *Parser) parseReturnStatement() ast.Statement {
+	tok := parser.currentToken
+
+	parser.advanceTokens()
+	expression := parser.parseExpression()
+
+	return &ast.ReturnStatement{
+		Token: tok,
 		Value: expression,
 	}
 }

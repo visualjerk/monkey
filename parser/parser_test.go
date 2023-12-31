@@ -13,6 +13,8 @@ func TestParseProgram(t *testing.T) {
 	input := `
 	let x = 5;
 	let y = 10 + 5;
+
+	return 5;
 `
 
 	expected := &ast.Program{
@@ -68,6 +70,19 @@ func TestParseProgram(t *testing.T) {
 						},
 						Value: "5",
 					},
+				},
+			},
+			&ast.ReturnStatement{
+				Token: token.Token{
+					Type:    token.RETURN,
+					Literal: "return",
+				},
+				Value: &ast.Int{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: "5",
+					},
+					Value: "5",
 				},
 			},
 		},
