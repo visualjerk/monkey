@@ -94,6 +94,33 @@ func TestParseProgram(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestIdentifierExpression(t *testing.T) {
+	input := "foobar;"
+
+	expected := &ast.Program{
+		Statements: []ast.Statement{
+			&ast.ExpressionStatement{
+				Token: token.Token{
+					Type:    token.IDENT,
+					Literal: "foobar",
+				},
+				Value: &ast.Identifier{
+					Token: token.Token{
+						Type:    token.IDENT,
+						Literal: "foobar",
+					},
+					Value: "foobar",
+				},
+			},
+		},
+	}
+
+	parser := New(lexer.New(input))
+	actual := parser.ParseProgram()
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestParserErrors(t *testing.T) {
 	input := `
 	let x 5;
