@@ -103,7 +103,6 @@ func (parser *Parser) parseExpression() ast.Expression {
 		return parser.parseInt()
 	}
 
-	// parser.expectError("unknown expression!")
 	return nil
 }
 
@@ -125,10 +124,6 @@ func (parser *Parser) parseAddExpression() ast.Expression {
 }
 
 func (parser *Parser) parseInt() ast.Expression {
-	if !parser.currentTokenIs(token.INT) {
-		// parser.expectError("not an int!")
-	}
-
 	return &ast.Int{
 		Token: parser.currentToken,
 		Value: parser.currentToken.Literal,
@@ -145,7 +140,7 @@ func (parser *Parser) advanceToExpectedToken(tokenType token.TokenType) bool {
 		parser.advanceTokens()
 		return true
 	}
-	parser.tokenTypeError(tokenType)
+	parser.nextTokenError(tokenType)
 	return false
 }
 
@@ -157,7 +152,7 @@ func (parser *Parser) nextTokenIs(tokenType token.TokenType) bool {
 	return parser.nextToken.Type == tokenType
 }
 
-func (parser *Parser) tokenTypeError(tokenType token.TokenType) {
+func (parser *Parser) nextTokenError(tokenType token.TokenType) {
 	message := fmt.Sprintf(
 		"expected next token to be %s, got %s instead",
 		tokenType,
