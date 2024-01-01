@@ -38,6 +38,9 @@ type infixParseFn func(ast.Expression) ast.Expression
 func New(lex *lexer.Lexer) *Parser {
 	parser := &Parser{lexer: lex}
 
+	parser.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	parser.registerPrefix(token.IDENT, parser.parseIdentifier)
+
 	// Read two tokens, so currentToken and nextToken are set initially
 	parser.advanceTokens()
 	parser.advanceTokens()
@@ -90,7 +93,10 @@ func (parser *Parser) parseLetStatement() *ast.LetStatement {
 	tok := parser.currentToken
 
 	parser.advanceToExpectedToken(token.IDENT)
-	identifier := parser.parseIdentifier()
+	identifier := &ast.Identifier{
+		Token: parser.currentToken,
+		Value: parser.currentToken.Literal,
+	}
 
 	parser.advanceToExpectedToken(token.ASSIGN)
 
@@ -131,7 +137,7 @@ func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	}
 }
 
-func (parser *Parser) parseIdentifier() *ast.Identifier {
+func (parser *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{
 		Token: parser.currentToken,
 		Value: parser.currentToken.Literal,
@@ -139,19 +145,27 @@ func (parser *Parser) parseIdentifier() *ast.Identifier {
 }
 
 func (parser *Parser) parseExpression(precedence precedencePriority) ast.Expression {
-	if parser.currentTokenIs(token.IDENT) {
-		return parser.parseIdentifier()
+	prefixFn := parser.prefixParseFns[parser.currentToken.Type]
+
+	if prefixFn == nil {
+		return nil
 	}
 
-	if parser.currentTokenIs(token.INT) {
-		if parser.nextTokenIs(token.PLUS) {
-			return parser.parseAddExpression()
-		}
+	leftExpression := prefixFn()
 
-		return parser.parseInt()
-	}
+	// if parser.currentTokenIs(token.IDENT) {
+	// 	return parser.parseIdentifier()
+	// }
 
-	return nil
+	// if parser.currentTokenIs(token.INT) {
+	// 	if parser.nextTokenIs(token.PLUS) {
+	// 		return parser.parseAddExpression()
+	// 	}
+
+	// 	return parser.parseInt()
+	// }
+
+	return leftExpression
 }
 
 func (parser *Parser) parseAddExpression() ast.Expression {
