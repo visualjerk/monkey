@@ -31,12 +31,12 @@ func TestParseProgram(t *testing.T) {
 					},
 					Value: "x",
 				},
-				Value: &ast.Int{
+				Value: &ast.IntegerLiteral{
 					Token: token.Token{
 						Type:    token.INT,
 						Literal: "5",
 					},
-					Value: "5",
+					Value: 5,
 				},
 			},
 			&ast.LetStatement{
@@ -56,19 +56,19 @@ func TestParseProgram(t *testing.T) {
 						Type:    token.PLUS,
 						Literal: "+",
 					},
-					Left: &ast.Int{
+					Left: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "10",
 						},
-						Value: "10",
+						Value: 10,
 					},
-					Right: &ast.Int{
+					Right: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.INT,
 							Literal: "5",
 						},
-						Value: "5",
+						Value: 5,
 					},
 				},
 			},
@@ -77,12 +77,12 @@ func TestParseProgram(t *testing.T) {
 					Type:    token.RETURN,
 					Literal: "return",
 				},
-				Value: &ast.Int{
+				Value: &ast.IntegerLiteral{
 					Token: token.Token{
 						Type:    token.INT,
 						Literal: "5",
 					},
-					Value: "5",
+					Value: 5,
 				},
 			},
 		},
@@ -110,6 +110,33 @@ func TestIdentifierExpression(t *testing.T) {
 						Literal: "foobar",
 					},
 					Value: "foobar",
+				},
+			},
+		},
+	}
+
+	parser := New(lexer.New(input))
+	actual := parser.ParseProgram()
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestIntegerLiteralExpression(t *testing.T) {
+	input := "5;"
+
+	expected := &ast.Program{
+		Statements: []ast.Statement{
+			&ast.ExpressionStatement{
+				Token: token.Token{
+					Type:    token.INT,
+					Literal: "5",
+				},
+				Value: &ast.IntegerLiteral{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: "5",
+					},
+					Value: 5,
 				},
 			},
 		},

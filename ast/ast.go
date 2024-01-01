@@ -107,17 +107,17 @@ func (identifier *Identifier) String() string {
 	return identifier.Value
 }
 
-type Int struct {
+type IntegerLiteral struct {
 	Token token.Token // the token.INT token
-	Value string
+	Value int64
 }
 
-func (int *Int) expressionNode() {}
-func (int *Int) TokenLiteral() string {
+func (int *IntegerLiteral) expressionNode() {}
+func (int *IntegerLiteral) TokenLiteral() string {
 	return int.Token.Literal
 }
-func (int *Int) String() string {
-	return int.Value
+func (int *IntegerLiteral) String() string {
+	return int.Token.Literal
 }
 
 type AddExpression struct {

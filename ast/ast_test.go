@@ -22,7 +22,7 @@ func TestString(t *testing.T) {
 					},
 					Value: "foo",
 				},
-				Value: &Int{
+				Value: &IntegerLiteral{
 					Token: token.Token{
 						Type:    token.INT,
 						Literal: "5",
