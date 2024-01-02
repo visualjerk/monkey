@@ -94,6 +94,27 @@ func (expressionStatement *ExpressionStatement) String() string {
 	return expressionStatement.Value.String()
 }
 
+type PrefixExpression struct {
+	Token    token.Token // the prefix token
+	Operator string
+	Right    Expression
+}
+
+func (prefixExpression *PrefixExpression) expressionNode() {}
+func (prefixExpression *PrefixExpression) TokenLiteral() string {
+	return prefixExpression.Token.Literal
+}
+func (prefixExpression *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(prefixExpression.Operator)
+	out.WriteString(prefixExpression.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
 type Identifier struct {
 	Token token.Token // the token.IDENT token
 	Value string

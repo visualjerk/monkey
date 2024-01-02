@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/token"
@@ -112,6 +113,50 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	actual := parser.ParseProgram()
 
 	assert.Equal(t, expected, actual)
+}
+
+func TestPrefixExpression(t *testing.T) {
+	testCases := []struct {
+		input        string
+		prefixToken  token.TokenType
+		operator     string
+		integerValue int64
+	}{
+		{"+5;", token.PLUS, "+", 5},
+		{"!10;", token.BANG, "!", 10},
+	}
+
+	for _, testCase := range testCases {
+		expected := &ast.Program{
+			Statements: []ast.Statement{
+				&ast.ExpressionStatement{
+					Token: token.Token{
+						Type:    testCase.prefixToken,
+						Literal: testCase.operator,
+					},
+					Value: &ast.PrefixExpression{
+						Token: token.Token{
+							Type:    testCase.prefixToken,
+							Literal: testCase.operator,
+						},
+						Operator: testCase.operator,
+						Right: &ast.IntegerLiteral{
+							Token: token.Token{
+								Type:    token.INT,
+								Literal: fmt.Sprintf("%d", testCase.integerValue),
+							},
+							Value: testCase.integerValue,
+						},
+					},
+				},
+			},
+		}
+
+		parser := New(lexer.New(testCase.input))
+		actual := parser.ParseProgram()
+
+		assert.Equal(t, expected, actual)
+	}
 }
 
 func TestParserErrors(t *testing.T) {
