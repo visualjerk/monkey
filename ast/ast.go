@@ -119,23 +119,3 @@ func (int *IntegerLiteral) TokenLiteral() string {
 func (int *IntegerLiteral) String() string {
 	return int.Token.Literal
 }
-
-type AddExpression struct {
-	Token token.Token // the token.PLUS token
-	Left  Expression
-	Right Expression
-}
-
-func (addExpression *AddExpression) expressionNode() {}
-func (addExpression *AddExpression) TokenLiteral() string {
-	return addExpression.Token.Literal
-}
-func (addExpression *AddExpression) String() string {
-	var out bytes.Buffer
-
-	out.WriteString(addExpression.Left.String() + " ")
-	out.WriteString(addExpression.TokenLiteral() + " ")
-	out.WriteString(addExpression.Right.String())
-
-	return out.String()
-}

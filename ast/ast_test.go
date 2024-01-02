@@ -27,7 +27,7 @@ func TestString(t *testing.T) {
 						Type:    token.INT,
 						Literal: "5",
 					},
-					Value: "5",
+					Value: 5,
 				},
 			},
 		},

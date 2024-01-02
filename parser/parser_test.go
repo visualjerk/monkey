@@ -12,7 +12,6 @@ import (
 func TestParseProgram(t *testing.T) {
 	input := `
 	let x = 5;
-	let y = 10 + 5;
 
 	return 5;
 `
@@ -37,39 +36,6 @@ func TestParseProgram(t *testing.T) {
 						Literal: "5",
 					},
 					Value: 5,
-				},
-			},
-			&ast.LetStatement{
-				Token: token.Token{
-					Type:    token.LET,
-					Literal: "let",
-				},
-				Name: &ast.Identifier{
-					Token: token.Token{
-						Type:    token.IDENT,
-						Literal: "y",
-					},
-					Value: "y",
-				},
-				Value: &ast.AddExpression{
-					Token: token.Token{
-						Type:    token.PLUS,
-						Literal: "+",
-					},
-					Left: &ast.IntegerLiteral{
-						Token: token.Token{
-							Type:    token.INT,
-							Literal: "10",
-						},
-						Value: 10,
-					},
-					Right: &ast.IntegerLiteral{
-						Token: token.Token{
-							Type:    token.INT,
-							Literal: "5",
-						},
-						Value: 5,
-					},
 				},
 			},
 			&ast.ReturnStatement{

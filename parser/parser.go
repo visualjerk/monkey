@@ -155,36 +155,7 @@ func (parser *Parser) parseExpression(precedence precedencePriority) ast.Express
 
 	leftExpression := prefixFn()
 
-	// if parser.currentTokenIs(token.IDENT) {
-	// 	return parser.parseIdentifier()
-	// }
-
-	// if parser.currentTokenIs(token.INT) {
-	// 	if parser.nextTokenIs(token.PLUS) {
-	// 		return parser.parseAddExpression()
-	// 	}
-
-	// 	return parser.parseInt()
-	// }
-
 	return leftExpression
-}
-
-func (parser *Parser) parseAddExpression() ast.Expression {
-	left := parser.parseIntegerLiteral()
-
-	parser.advanceToExpectedToken(token.PLUS)
-
-	tok := parser.currentToken
-	parser.advanceTokens()
-
-	right := parser.parseExpression(LOWEST)
-
-	return &ast.AddExpression{
-		Token: tok,
-		Left:  left,
-		Right: right,
-	}
 }
 
 func (parser *Parser) parseIntegerLiteral() ast.Expression {
