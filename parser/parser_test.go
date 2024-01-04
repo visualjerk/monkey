@@ -124,6 +124,7 @@ func TestPrefixExpression(t *testing.T) {
 	}{
 		{"+5;", token.PLUS, "+", 5},
 		{"!10;", token.BANG, "!", 10},
+		{"-10;", token.MINUS, "-", 10},
 	}
 
 	for _, testCase := range testCases {
@@ -214,6 +215,29 @@ func TestInfixExpression(t *testing.T) {
 		actual := parser.ParseProgram()
 
 		assert.Equal(t, expected, actual)
+	}
+}
+
+func TestOperatorPrecedenceParsing(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{"-a * b", "((-a) * b)"},
+		{"!-a", "(!(-a))"},
+		{"a + b + c", "((a + b) + c)"},
+		{"a + b - c", "((a + b) - c)"},
+		{"a * b * c", "((a * b) * c)"},
+		{"a * b / c", "((a * b) / c)"},
+		{"a + b * c", "(a + (b * c)"},
+		{"a - b / c", "(a - (b / c)"},
+	}
+
+	for _, testCase := range testCases {
+		parser := New(lexer.New(testCase.input))
+		program := parser.ParseProgram()
+
+		assert.Equal(t, testCase.expected, program.String())
 	}
 }
 
