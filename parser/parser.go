@@ -8,10 +8,10 @@ import (
 	"strconv"
 )
 
-type precedencePriority int
+type operatorPrecedence int
 
 const (
-	_ precedencePriority = iota
+	_ operatorPrecedence = iota
 	LOWEST
 	EQUALS      // ==
 	LESSGREATER // > or <
@@ -21,7 +21,7 @@ const (
 	CALL        // myFunction(x)
 )
 
-var precedences = map[token.TokenType]precedencePriority{
+var precedences = map[token.TokenType]operatorPrecedence{
 	token.EQ:       EQUALS,
 	token.NOT_EQ:   EQUALS,
 	token.LT:       LESSGREATER,
@@ -170,7 +170,7 @@ func (parser *Parser) parseIdentifier() ast.Expression {
 	}
 }
 
-func (parser *Parser) parseExpression(precedence precedencePriority) ast.Expression {
+func (parser *Parser) parseExpression(precedence operatorPrecedence) ast.Expression {
 	prefixFn := parser.prefixParseFns[parser.currentToken.Type]
 
 	if prefixFn == nil {
@@ -268,14 +268,14 @@ func (parser *Parser) nextTokenError(tokenType token.TokenType) {
 	parser.errors = append(parser.errors, message)
 }
 
-func (parser *Parser) nextPrecedence() precedencePriority {
+func (parser *Parser) nextPrecedence() operatorPrecedence {
 	if priority, ok := precedences[parser.nextToken.Type]; ok {
 		return priority
 	}
 	return LOWEST
 }
 
-func (parser *Parser) currentPrecedence() precedencePriority {
+func (parser *Parser) currentPrecedence() operatorPrecedence {
 	if priority, ok := precedences[parser.currentToken.Type]; ok {
 		return priority
 	}
