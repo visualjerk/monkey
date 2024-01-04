@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"monkey/lexer"
-	"monkey/token"
+	"monkey/parser"
 )
 
 const PROMPT = ">> "
@@ -23,9 +23,8 @@ func Start(in io.Reader, out io.Writer) {
 
 		line := scanner.Text()
 		lex := lexer.New(line)
+		parser := parser.New(lex)
 
-		for tok := lex.GetNextToken(); tok.Type != token.EOF; tok = lex.GetNextToken() {
-			fmt.Fprintf(out, "%+v\n", tok)
-		}
+		fmt.Fprintf(out, "%+v\n", parser.ParseProgram().String())
 	}
 }
