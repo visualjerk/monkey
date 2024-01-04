@@ -223,14 +223,42 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"-a * b", "((-a) * b)"},
-		{"!-a", "(!(-a))"},
-		{"a + b + c", "((a + b) + c)"},
-		{"a + b - c", "((a + b) - c)"},
-		{"a * b * c", "((a * b) * c)"},
-		{"a * b / c", "((a * b) / c)"},
-		{"a + b * c", "(a + (b * c)"},
-		{"a - b / c", "(a - (b / c)"},
+		{
+			"-a * b",
+			"((-a) * b)",
+		},
+		{
+			"!-a",
+			"(!(-a))",
+		},
+		{
+			"a + b + c",
+			"((a + b) + c)",
+		},
+		{
+			"a + b - c",
+			"((a + b) - c)",
+		},
+		{
+			"a * b * c",
+			"((a * b) * c)",
+		},
+		{
+			"a * b / c",
+			"((a * b) / c)",
+		},
+		{
+			"a + b * c",
+			"(a + (b * c))",
+		},
+		{
+			"a - b / c",
+			"(a - (b / c))",
+		},
+		{
+			"3 - 4 * 5 == 3 * 1 + 4 * 5",
+			"((3 - (4 * 5)) == ((3 * 1) + (4 * 5)))",
+		},
 	}
 
 	for _, testCase := range testCases {
