@@ -21,6 +21,17 @@ const (
 	CALL        // myFunction(x)
 )
 
+var precedences = map[token.TokenType]precedencePriority{
+	token.EQ:       EQUALS,
+	token.NOT_EQ:   EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.ASTERISK: PRODUCT,
+	token.SLASH:    PRODUCT,
+}
+
 type Parser struct {
 	lexer *lexer.Lexer
 
@@ -44,6 +55,16 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.INT, parser.parseIntegerLiteral)
 	parser.registerPrefix(token.PLUS, parser.parsePrefixExpression)
 	parser.registerPrefix(token.BANG, parser.parsePrefixExpression)
+
+	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
+	parser.registerInfix(token.EQ, parser.parseInfixExpression)
+	parser.registerInfix(token.NOT_EQ, parser.parseInfixExpression)
+	parser.registerInfix(token.PLUS, parser.parseInfixExpression)
+	parser.registerInfix(token.MINUS, parser.parseInfixExpression)
+	parser.registerInfix(token.LT, parser.parseInfixExpression)
+	parser.registerInfix(token.GT, parser.parseInfixExpression)
+	parser.registerInfix(token.ASTERISK, parser.parseInfixExpression)
+	parser.registerInfix(token.SLASH, parser.parseInfixExpression)
 
 	// Read two tokens, so currentToken and nextToken are set initially
 	parser.advanceTokens()
@@ -159,6 +180,18 @@ func (parser *Parser) parseExpression(precedence precedencePriority) ast.Express
 
 	leftExpression := prefixFn()
 
+	for !parser.nextTokenIs(token.SEMICOLON) && precedence < parser.nextPrecedence() {
+		infixFn := parser.infixParseFns[parser.nextToken.Type]
+
+		if infixFn == nil {
+			return leftExpression
+		}
+
+		parser.advanceTokens()
+
+		leftExpression = infixFn(leftExpression)
+	}
+
 	return leftExpression
 }
 
@@ -170,6 +203,20 @@ func (parser *Parser) parsePrefixExpression() ast.Expression {
 	return &ast.PrefixExpression{
 		Token:    prefix,
 		Operator: prefix.Literal,
+		Right:    right,
+	}
+}
+
+func (parser *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	infix := parser.currentToken
+	precedence := parser.currentPrecedence()
+	parser.advanceTokens()
+	right := parser.parseExpression(precedence)
+
+	return &ast.InfixExpression{
+		Token:    infix,
+		Operator: infix.Literal,
+		Left:     left,
 		Right:    right,
 	}
 }
@@ -218,4 +265,18 @@ func (parser *Parser) nextTokenError(tokenType token.TokenType) {
 		parser.nextToken.Type,
 	)
 	parser.errors = append(parser.errors, message)
+}
+
+func (parser *Parser) nextPrecedence() precedencePriority {
+	if priority, ok := precedences[parser.nextToken.Type]; ok {
+		return priority
+	}
+	return LOWEST
+}
+
+func (parser *Parser) currentPrecedence() precedencePriority {
+	if priority, ok := precedences[parser.currentToken.Type]; ok {
+		return priority
+	}
+	return LOWEST
 }

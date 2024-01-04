@@ -159,6 +159,64 @@ func TestPrefixExpression(t *testing.T) {
 	}
 }
 
+func TestInfixExpression(t *testing.T) {
+	testCases := []struct {
+		input      string
+		infixToken token.TokenType
+		operator   string
+		leftValue  int64
+		rightValue int64
+	}{
+		{"5 + 5;", token.PLUS, "+", 5, 5},
+		{"5 - 5;", token.MINUS, "-", 5, 5},
+		{"5 == 5;", token.EQ, "==", 5, 5},
+		{"5 != 5;", token.NOT_EQ, "!=", 5, 5},
+		{"5 < 5;", token.LT, "<", 5, 5},
+		{"5 > 5;", token.GT, ">", 5, 5},
+		{"5 * 5;", token.ASTERISK, "*", 5, 5},
+		{"5 / 5;", token.SLASH, "/", 5, 5},
+	}
+
+	for _, testCase := range testCases {
+		expected := &ast.Program{
+			Statements: []ast.Statement{
+				&ast.ExpressionStatement{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: fmt.Sprintf("%d", testCase.leftValue),
+					},
+					Value: &ast.InfixExpression{
+						Token: token.Token{
+							Type:    testCase.infixToken,
+							Literal: testCase.operator,
+						},
+						Operator: testCase.operator,
+						Left: &ast.IntegerLiteral{
+							Token: token.Token{
+								Type:    token.INT,
+								Literal: fmt.Sprintf("%d", testCase.leftValue),
+							},
+							Value: testCase.leftValue,
+						},
+						Right: &ast.IntegerLiteral{
+							Token: token.Token{
+								Type:    token.INT,
+								Literal: fmt.Sprintf("%d", testCase.rightValue),
+							},
+							Value: testCase.rightValue,
+						},
+					},
+				},
+			},
+		}
+
+		parser := New(lexer.New(testCase.input))
+		actual := parser.ParseProgram()
+
+		assert.Equal(t, expected, actual)
+	}
+}
+
 func TestParserErrors(t *testing.T) {
 	input := `
 	let x 5;
