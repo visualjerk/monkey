@@ -287,6 +287,10 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"if (x < y) { x }",
 			"if (x < y) { x }",
 		},
+		{
+			"if (x < y) { x } else { y }",
+			"if (x < y) { x } else { y }",
+		},
 	}
 
 	for _, testCase := range testCases {

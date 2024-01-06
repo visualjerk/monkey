@@ -224,6 +224,16 @@ func (parser *Parser) parseIfExpression() ast.Expression {
 
 	ifExpression.Consequence = parser.parseBlockStatement()
 
+	if parser.nextTokenIs(token.ELSE) {
+		parser.advanceTokens()
+
+		if !parser.advanceToExpectedToken(token.LBRACE) {
+			return nil
+		}
+
+		ifExpression.Alternative = parser.parseBlockStatement()
+	}
+
 	return ifExpression
 }
 
