@@ -25,6 +25,21 @@ func Start(in io.Reader, out io.Writer) {
 		lex := lexer.New(line)
 		parser := parser.New(lex)
 
-		fmt.Fprintf(out, "%+v\n", parser.ParseProgram().String())
+		output := parser.ParseProgram()
+		errors := parser.GetErrors()
+
+		if len(errors) > 0 {
+			outputErrors(out, errors)
+		} else {
+			fmt.Fprintf(out, "%+v\n", output.String())
+		}
+	}
+}
+
+func outputErrors(out io.Writer, errors []string) {
+	fmt.Fprintf(out, "😅 Ooops ... we encountered some errors:\n")
+
+	for _, error := range errors {
+		fmt.Fprintf(out, "\t %s\n", error)
 	}
 }
