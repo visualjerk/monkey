@@ -88,6 +88,22 @@ func TestString(t *testing.T) {
 			},
 			expected: "(5 + 5)",
 		},
+		{
+			input: &ExpressionStatement{
+				Token: token.Token{
+					Type:    token.TRUE,
+					Literal: "true",
+				},
+				Value: &Boolean{
+					Token: token.Token{
+						Type:    token.TRUE,
+						Literal: "true",
+					},
+					Value: true,
+				},
+			},
+			expected: "true",
+		},
 	}
 
 	for _, testCase := range testCases {

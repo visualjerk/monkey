@@ -259,12 +259,21 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"3 - 4 * 5 == 3 * 1 + 4 * 5",
 			"((3 - (4 * 5)) == ((3 * 1) + (4 * 5)))",
 		},
+		{
+			"true",
+			"true",
+		},
+		{
+			"false",
+			"false",
+		},
 	}
 
 	for _, testCase := range testCases {
 		parser := New(lexer.New(testCase.input))
 		program := parser.ParseProgram()
 
+		assert.Equal(t, []string{}, parser.GetErrors())
 		assert.Equal(t, testCase.expected, program.String())
 	}
 }
