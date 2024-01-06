@@ -104,6 +104,70 @@ func TestString(t *testing.T) {
 			},
 			expected: "true",
 		},
+		{
+			input: &ExpressionStatement{
+				Token: token.Token{
+					Type:    token.IF,
+					Literal: "if",
+				},
+				Value: &IfExpression{
+					Token: token.Token{
+						Type:    token.IF,
+						Literal: "if",
+					},
+					Condition: &Boolean{
+						Token: token.Token{
+							Type:    token.TRUE,
+							Literal: "true",
+						},
+						Value: true,
+					},
+					Consequence: &BlockStatement{
+						Token: token.Token{
+							Type:    token.LBRACE,
+							Literal: "{",
+						},
+						Statements: []Statement{
+							&ExpressionStatement{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "5",
+								},
+								Value: &IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "5",
+									},
+									Value: 5,
+								},
+							},
+						},
+					},
+					Alternative: &BlockStatement{
+						Token: token.Token{
+							Type:    token.LBRACE,
+							Literal: "{",
+						},
+						Statements: []Statement{
+							&ExpressionStatement{
+								Token: token.Token{
+									Type:    token.INT,
+									Literal: "3",
+								},
+								Value: &IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "3",
+									},
+									Value: 3,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "if true { 5 } else { 3 }",
+		},
 	}
 
 	for _, testCase := range testCases {
