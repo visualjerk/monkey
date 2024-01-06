@@ -283,6 +283,10 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"-(3 + 2)",
 			"(-(3 + 2))",
 		},
+		{
+			"if (x < y) { x }",
+			"if (x < y) { x }",
+		},
 	}
 
 	for _, testCase := range testCases {

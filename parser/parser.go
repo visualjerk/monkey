@@ -59,6 +59,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.MINUS, parser.parsePrefixExpression)
 	parser.registerPrefix(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefix(token.LPAREN, parser.parseGroupedExpression)
+	parser.registerPrefix(token.IF, parser.parseIfExpression)
 
 	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
 	parser.registerInfix(token.EQ, parser.parseInfixExpression)
@@ -166,6 +167,27 @@ func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	}
 }
 
+func (parser *Parser) parseBlockStatement() *ast.BlockStatement {
+	blockStatement := &ast.BlockStatement{
+		Token:      parser.currentToken,
+		Statements: []ast.Statement{},
+	}
+
+	parser.advanceTokens()
+
+	for !parser.currentTokenIs(token.EOF) && !parser.currentTokenIs(token.RBRACE) {
+		statement := parser.parseStatement()
+
+		if statement != nil {
+			blockStatement.Statements = append(blockStatement.Statements, statement)
+		}
+
+		parser.advanceTokens()
+	}
+
+	return blockStatement
+}
+
 func (parser *Parser) parseGroupedExpression() ast.Expression {
 	parser.advanceTokens()
 
@@ -178,6 +200,31 @@ func (parser *Parser) parseGroupedExpression() ast.Expression {
 	parser.advanceTokens()
 
 	return expression
+}
+
+func (parser *Parser) parseIfExpression() ast.Expression {
+	ifExpression := &ast.IfExpression{
+		Token: parser.currentToken,
+	}
+
+	if !parser.advanceToExpectedToken(token.LPAREN) {
+		return nil
+	}
+
+	parser.advanceTokens()
+	ifExpression.Condition = parser.parseExpression(LOWEST)
+
+	if !parser.advanceToExpectedToken(token.RPAREN) {
+		return nil
+	}
+
+	if !parser.advanceToExpectedToken(token.LBRACE) {
+		return nil
+	}
+
+	ifExpression.Consequence = parser.parseBlockStatement()
+
+	return ifExpression
 }
 
 func (parser *Parser) parseIdentifier() ast.Expression {
