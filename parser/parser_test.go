@@ -275,6 +275,10 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"5 > 3 == true",
 			"((5 > 3) == true)",
 		},
+		{
+			"(a - b) / c",
+			"((a - b) / c)",
+		},
 	}
 
 	for _, testCase := range testCases {
