@@ -75,7 +75,7 @@ func (returnStatement *ReturnStatement) TokenLiteral() string {
 func (returnStatement *ReturnStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(returnStatement.TokenLiteral() + "")
+	out.WriteString(returnStatement.TokenLiteral() + " ")
 	out.WriteString(returnStatement.Value.String() + ";")
 
 	return out.String()

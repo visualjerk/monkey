@@ -59,6 +59,22 @@ func TestString(t *testing.T) {
 			expected: "(+5)",
 		},
 		{
+			input: &ReturnStatement{
+				Token: token.Token{
+					Type:    token.RETURN,
+					Literal: "return",
+				},
+				Value: &IntegerLiteral{
+					Token: token.Token{
+						Type:    token.INT,
+						Literal: "5",
+					},
+					Value: 5,
+				},
+			},
+			expected: "return 5;",
+		},
+		{
 			input: &ExpressionStatement{
 				Token: token.Token{
 					Type:    token.INT,
