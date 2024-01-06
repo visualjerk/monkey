@@ -267,13 +267,21 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"false",
 			"false",
 		},
+		{
+			"a < b == false",
+			"((a < b) == false)",
+		},
+		{
+			"5 > 3 == true",
+			"((5 > 3) == true)",
+		},
 	}
 
 	for _, testCase := range testCases {
 		parser := New(lexer.New(testCase.input))
 		program := parser.ParseProgram()
 
-		assert.Equal(t, []string{}, parser.GetErrors())
+		assert.Equal(t, []string(nil), parser.GetErrors())
 		assert.Equal(t, testCase.expected, program.String())
 	}
 }
