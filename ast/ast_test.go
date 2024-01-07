@@ -2,10 +2,31 @@ package ast
 
 import (
 	"monkey/token"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func newIntegerLiteral(value int64) *IntegerLiteral {
+	return &IntegerLiteral{
+		Token: token.Token{
+			Type:    token.INT,
+			Literal: strconv.FormatInt(value, 10),
+		},
+		Value: value,
+	}
+}
+
+func newIntegerExpression(value int64) *ExpressionStatement {
+	return &ExpressionStatement{
+		Token: token.Token{
+			Type:    token.INT,
+			Literal: strconv.FormatInt(value, 10),
+		},
+		Value: newIntegerLiteral(value),
+	}
+}
 
 func TestString(t *testing.T) {
 	testCases := []struct {
@@ -13,7 +34,7 @@ func TestString(t *testing.T) {
 		expected string
 	}{
 		{
-			input: &LetStatement{
+			&LetStatement{
 				Token: token.Token{
 					Type:    token.LET,
 					Literal: "let",
@@ -25,18 +46,12 @@ func TestString(t *testing.T) {
 					},
 					Value: "foo",
 				},
-				Value: &IntegerLiteral{
-					Token: token.Token{
-						Type:    token.INT,
-						Literal: "5",
-					},
-					Value: 5,
-				},
+				Value: newIntegerLiteral(5),
 			},
-			expected: "let foo = 5;",
+			"let foo = 5;",
 		},
 		{
-			input: &ExpressionStatement{
+			&ExpressionStatement{
 				Token: token.Token{
 					Type:    token.BANG,
 					Literal: "!",
@@ -47,35 +62,23 @@ func TestString(t *testing.T) {
 						Literal: "!",
 					},
 					Operator: "+",
-					Right: &IntegerLiteral{
-						Token: token.Token{
-							Type:    token.INT,
-							Literal: "5",
-						},
-						Value: 5,
-					},
+					Right:    newIntegerLiteral(5),
 				},
 			},
-			expected: "(+5)",
+			"(+5)",
 		},
 		{
-			input: &ReturnStatement{
+			&ReturnStatement{
 				Token: token.Token{
 					Type:    token.RETURN,
 					Literal: "return",
 				},
-				Value: &IntegerLiteral{
-					Token: token.Token{
-						Type:    token.INT,
-						Literal: "5",
-					},
-					Value: 5,
-				},
+				Value: newIntegerLiteral(5),
 			},
-			expected: "return 5;",
+			"return 5;",
 		},
 		{
-			input: &ExpressionStatement{
+			&ExpressionStatement{
 				Token: token.Token{
 					Type:    token.INT,
 					Literal: "5",
@@ -86,26 +89,14 @@ func TestString(t *testing.T) {
 						Literal: "+",
 					},
 					Operator: "+",
-					Left: &IntegerLiteral{
-						Token: token.Token{
-							Type:    token.INT,
-							Literal: "5",
-						},
-						Value: 5,
-					},
-					Right: &IntegerLiteral{
-						Token: token.Token{
-							Type:    token.INT,
-							Literal: "5",
-						},
-						Value: 5,
-					},
+					Left:     newIntegerLiteral(5),
+					Right:    newIntegerLiteral(5),
 				},
 			},
-			expected: "(5 + 5)",
+			"(5 + 5)",
 		},
 		{
-			input: &ExpressionStatement{
+			&ExpressionStatement{
 				Token: token.Token{
 					Type:    token.TRUE,
 					Literal: "true",
@@ -118,10 +109,10 @@ func TestString(t *testing.T) {
 					Value: true,
 				},
 			},
-			expected: "true",
+			"true",
 		},
 		{
-			input: &ExpressionStatement{
+			&ExpressionStatement{
 				Token: token.Token{
 					Type:    token.IF,
 					Literal: "if",
@@ -144,19 +135,7 @@ func TestString(t *testing.T) {
 							Literal: "{",
 						},
 						Statements: []Statement{
-							&ExpressionStatement{
-								Token: token.Token{
-									Type:    token.INT,
-									Literal: "5",
-								},
-								Value: &IntegerLiteral{
-									Token: token.Token{
-										Type:    token.INT,
-										Literal: "5",
-									},
-									Value: 5,
-								},
-							},
+							newIntegerExpression(5),
 						},
 					},
 					Alternative: &BlockStatement{
@@ -165,27 +144,15 @@ func TestString(t *testing.T) {
 							Literal: "{",
 						},
 						Statements: []Statement{
-							&ExpressionStatement{
-								Token: token.Token{
-									Type:    token.INT,
-									Literal: "3",
-								},
-								Value: &IntegerLiteral{
-									Token: token.Token{
-										Type:    token.INT,
-										Literal: "3",
-									},
-									Value: 3,
-								},
-							},
+							newIntegerExpression(3),
 						},
 					},
 				},
 			},
-			expected: "if true { 5 } else { 3 }",
+			"if true { 5 } else { 3 }",
 		},
 		{
-			input: &ExpressionStatement{
+			&ExpressionStatement{
 				Token: token.Token{
 					Type:    token.FUNCTION,
 					Literal: "fn",
@@ -222,19 +189,13 @@ func TestString(t *testing.T) {
 									Type:    token.RETURN,
 									Literal: "return",
 								},
-								Value: &IntegerLiteral{
-									Token: token.Token{
-										Type:    token.INT,
-										Literal: "3",
-									},
-									Value: 3,
-								},
+								Value: newIntegerLiteral(3),
 							},
 						},
 					},
 				},
 			},
-			expected: "fn(a, b) { return 3; }",
+			"fn(a, b) { return 3; }",
 		},
 	}
 
