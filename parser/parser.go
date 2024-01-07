@@ -79,8 +79,8 @@ func New(lex *lexer.Lexer) *Parser {
 	return parser
 }
 
-func (parser *Parser) ParseProgram() *ast.Program {
-	program := &ast.Program{}
+func (parser *Parser) ParseProgram() (errors []string, program *ast.Program) {
+	program = &ast.Program{}
 
 	for !parser.currentTokenIs(token.EOF) {
 		statement := parser.parseStatement()
@@ -92,11 +92,11 @@ func (parser *Parser) ParseProgram() *ast.Program {
 		parser.advanceTokens()
 	}
 
-	return program
-}
+	if len(parser.errors) > 0 {
+		return parser.errors, program
+	}
 
-func (parser *Parser) GetErrors() []string {
-	return parser.errors
+	return nil, program
 }
 
 func (parser *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {

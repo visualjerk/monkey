@@ -25,10 +25,9 @@ func Start(in io.Reader, out io.Writer) {
 		lex := lexer.New(line)
 		parser := parser.New(lex)
 
-		output := parser.ParseProgram()
-		errors := parser.GetErrors()
+		errors, output := parser.ParseProgram()
 
-		if len(errors) > 0 {
+		if errors != nil {
 			outputErrors(out, errors)
 		} else {
 			fmt.Fprintf(out, "%+v\n", output.String())

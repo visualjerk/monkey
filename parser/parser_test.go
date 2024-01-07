@@ -18,9 +18,9 @@ type stringTestCase = struct {
 func runStringTestCases(t *testing.T, testCases []stringTestCase) {
 	for _, testCase := range testCases {
 		parser := New(lexer.New(testCase.input))
-		program := parser.ParseProgram()
+		errors, program := parser.ParseProgram()
 
-		assert.Equal(t, []string(nil), parser.GetErrors())
+		assert.Nil(t, errors)
 		assert.Equal(t, testCase.expected, program.String())
 	}
 }
@@ -71,8 +71,9 @@ func TestParseProgram(t *testing.T) {
 	}
 
 	parser := New(lexer.New(input))
-	actual := parser.ParseProgram()
+	errors, actual := parser.ParseProgram()
 
+	assert.Nil(t, errors)
 	assert.Equal(t, expected, actual)
 }
 
@@ -91,9 +92,7 @@ func TestParserErrors(t *testing.T) {
 	}
 
 	parser := New(lexer.New(input))
-	parser.ParseProgram()
-	actual := parser.GetErrors()
-
+	actual, _ := parser.ParseProgram()
 	assert.Equal(t, expected, actual)
 }
 
@@ -119,8 +118,9 @@ func TestIdentifierExpression(t *testing.T) {
 	}
 
 	parser := New(lexer.New(input))
-	actual := parser.ParseProgram()
+	errors, actual := parser.ParseProgram()
 
+	assert.Nil(t, errors)
 	assert.Equal(t, expected, actual)
 }
 
@@ -146,8 +146,9 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 
 	parser := New(lexer.New(input))
-	actual := parser.ParseProgram()
+	errors, actual := parser.ParseProgram()
 
+	assert.Nil(t, errors)
 	assert.Equal(t, expected, actual)
 }
 
@@ -190,8 +191,9 @@ func TestPrefixExpression(t *testing.T) {
 		}
 
 		parser := New(lexer.New(testCase.input))
-		actual := parser.ParseProgram()
+		errors, actual := parser.ParseProgram()
 
+		assert.Nil(t, errors)
 		assert.Equal(t, expected, actual)
 	}
 }
@@ -248,8 +250,9 @@ func TestInfixExpression(t *testing.T) {
 		}
 
 		parser := New(lexer.New(testCase.input))
-		actual := parser.ParseProgram()
+		errors, actual := parser.ParseProgram()
 
+		assert.Nil(t, errors)
 		assert.Equal(t, expected, actual)
 	}
 }
@@ -359,8 +362,7 @@ func TestFunctionLiteralParserErrors(t *testing.T) {
 	}
 
 	parser := New(lexer.New(input))
-	parser.ParseProgram()
-	actual := parser.GetErrors()
+	actual, _ := parser.ParseProgram()
 
 	assert.Equal(t, expected, actual)
 }
