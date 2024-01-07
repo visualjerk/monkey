@@ -184,6 +184,58 @@ func TestString(t *testing.T) {
 			},
 			expected: "if true { 5 } else { 3 }",
 		},
+		{
+			input: &ExpressionStatement{
+				Token: token.Token{
+					Type:    token.FUNCTION,
+					Literal: "fn",
+				},
+				Value: &FunctionLiteral{
+					Token: token.Token{
+						Type:    token.FUNCTION,
+						Literal: "fn",
+					},
+					Arguments: []*Identifier{
+						{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "a",
+							},
+							Value: "a",
+						},
+						{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "b",
+							},
+							Value: "b",
+						},
+					},
+					Body: &BlockStatement{
+						Token: token.Token{
+							Type:    token.LBRACE,
+							Literal: "{",
+						},
+						Statements: []Statement{
+							&ReturnStatement{
+								Token: token.Token{
+									Type:    token.RETURN,
+									Literal: "return",
+								},
+								Value: &IntegerLiteral{
+									Token: token.Token{
+										Type:    token.INT,
+										Literal: "3",
+									},
+									Value: 3,
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "fn(a, b) { return 3; }",
+		},
 	}
 
 	for _, testCase := range testCases {
