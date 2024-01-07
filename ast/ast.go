@@ -144,9 +144,9 @@ func (ifExpression *IfExpression) String() string {
 }
 
 type FunctionLiteral struct {
-	Token     token.Token // the fn token
-	Arguments []*Identifier
-	Body      *BlockStatement
+	Token      token.Token // the fn token
+	Parameters []*Identifier
+	Body       *BlockStatement
 }
 
 func (functionLiteral *FunctionLiteral) expressionNode() {}
@@ -156,13 +156,13 @@ func (functionLiteral *FunctionLiteral) TokenLiteral() string {
 func (functionLiteral *FunctionLiteral) String() string {
 	var out bytes.Buffer
 
-	arguments := []string{}
-	for _, argument := range functionLiteral.Arguments {
-		arguments = append(arguments, argument.String())
+	parameters := []string{}
+	for _, argument := range functionLiteral.Parameters {
+		parameters = append(parameters, argument.String())
 	}
 
 	out.WriteString("fn(")
-	out.WriteString(strings.Join(arguments, ", "))
+	out.WriteString(strings.Join(parameters, ", "))
 	out.WriteString(") ")
 	out.WriteString(functionLiteral.Body.String())
 

@@ -195,7 +195,7 @@ func TestString(t *testing.T) {
 						Type:    token.FUNCTION,
 						Literal: "fn",
 					},
-					Arguments: []*Identifier{
+					Parameters: []*Identifier{
 						{
 							Token: token.Token{
 								Type:    token.IDENT,

@@ -302,20 +302,29 @@ func (parser *Parser) parseFunctionLiteral() ast.Expression {
 		Token: parser.currentToken,
 	}
 
-	parser.advanceToExpectedToken(token.LPAREN)
-	functionLiteral.Arguments = parser.parseFunctionArguments()
+	if !parser.advanceToExpectedToken(token.LPAREN) {
+		return nil
+	}
+	functionLiteral.Parameters = parser.parseFunctionParameters()
 
-	parser.advanceToExpectedToken(token.LBRACE)
+	if !parser.advanceToExpectedToken(token.LBRACE) {
+		return nil
+	}
 	functionLiteral.Body = parser.parseBlockStatement()
 
 	return functionLiteral
 }
 
-func (parser *Parser) parseFunctionArguments() []*ast.Identifier {
-	arguments := []*ast.Identifier{}
+func (parser *Parser) parseFunctionParameters() []*ast.Identifier {
+	parameters := []*ast.Identifier{}
+
+	if parser.nextTokenIs(token.RPAREN) {
+		parser.advanceTokens()
+		return parameters
+	}
 
 	for parser.advanceToExpectedToken(token.IDENT) {
-		arguments = append(arguments, &ast.Identifier{
+		parameters = append(parameters, &ast.Identifier{
 			Token: parser.currentToken,
 			Value: parser.currentToken.Literal,
 		})
@@ -327,9 +336,11 @@ func (parser *Parser) parseFunctionArguments() []*ast.Identifier {
 		}
 	}
 
-	parser.advanceToExpectedToken(token.RPAREN)
+	if !parser.advanceToExpectedToken(token.RPAREN) {
+		return nil
+	}
 
-	return arguments
+	return parameters
 }
 
 func (parser *Parser) parseIntegerLiteral() ast.Expression {

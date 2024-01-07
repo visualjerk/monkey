@@ -338,6 +338,10 @@ func TestFunctionLiteral(t *testing.T) {
 			"fn(a, b) { return a + b; }",
 			"fn(a, b) { return (a + b); }",
 		},
+		{
+			"fn() { return 5; }",
+			"fn() { return 5; }",
+		},
 	})
 }
 
