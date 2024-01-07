@@ -76,6 +76,27 @@ func TestParseProgram(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestParserErrors(t *testing.T) {
+	input := `
+	let x 5;
+	let = 10 + 5;
+	let 10;
+`
+
+	expected := []string{
+		"expected next token to be =, got INT instead",
+		"expected next token to be IDENT, got = instead",
+		"expected next token to be IDENT, got INT instead",
+		"expected next token to be =, got INT instead",
+	}
+
+	parser := New(lexer.New(input))
+	parser.ParseProgram()
+	actual := parser.GetErrors()
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestIdentifierExpression(t *testing.T) {
 	input := "foobar;"
 
@@ -311,36 +332,19 @@ func TestIfExpressions(t *testing.T) {
 	})
 }
 
-func TestParserErrors(t *testing.T) {
-	input := `
-	let x 5;
-	let = 10 + 5;
-	let 10;
-`
-
-	expected := []string{
-		"expected next token to be =, got INT instead",
-		"expected next token to be IDENT, got = instead",
-		"expected next token to be IDENT, got INT instead",
-		"expected next token to be =, got INT instead",
-	}
-
-	parser := New(lexer.New(input))
-	parser.ParseProgram()
-	actual := parser.GetErrors()
-
-	assert.Equal(t, expected, actual)
-}
-
 func TestFunctionLiteral(t *testing.T) {
 	runStringTestCases(t, []stringTestCase{
 		{
-			"fn(a, b) { return a + b; }",
-			"fn(a, b) { return (a + b); }",
+			"fn() { return 5; }",
+			"fn() { return 5; }",
 		},
 		{
-			"fn() { return 5; }",
-			"fn() { return 5; }",
+			"fn(a) { return a; }",
+			"fn(a) { return a; }",
+		},
+		{
+			"fn(a, b, c) { return a + b + c; }",
+			"fn(a, b, c) { return ((a + b) + c); }",
 		},
 	})
 }
