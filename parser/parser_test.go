@@ -366,3 +366,20 @@ func TestFunctionLiteralParserErrors(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+func TestCallExpression(t *testing.T) {
+	runStringTestCases(t, []stringTestCase{
+		{
+			"foo()",
+			"foo()",
+		},
+		{
+			"foo(a)",
+			"foo(a)",
+		},
+		{
+			"foo(a, b)",
+			"foo(a, b)",
+		},
+	})
+}

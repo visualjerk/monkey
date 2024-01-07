@@ -30,6 +30,7 @@ var precedences = map[token.TokenType]operatorPrecedence{
 	token.MINUS:    SUM,
 	token.ASTERISK: PRODUCT,
 	token.SLASH:    PRODUCT,
+	token.LPAREN:   CALL,
 }
 
 type Parser struct {
@@ -71,6 +72,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerInfix(token.GT, parser.parseInfixExpression)
 	parser.registerInfix(token.ASTERISK, parser.parseInfixExpression)
 	parser.registerInfix(token.SLASH, parser.parseInfixExpression)
+	parser.registerInfix(token.LPAREN, parser.parseCallExpression)
 
 	// Read two tokens, so currentToken and nextToken are set initially
 	parser.advanceTokens()
@@ -341,6 +343,41 @@ func (parser *Parser) parseFunctionParameters() []*ast.Identifier {
 	}
 
 	return parameters
+}
+
+func (parser *Parser) parseCallExpression(left ast.Expression) ast.Expression {
+	callExpression := &ast.CallExpression{
+		Token:    parser.currentToken,
+		Function: left,
+	}
+
+	callExpression.Arguments = parser.parseCallExpressionArguments()
+
+	return callExpression
+}
+
+func (parser *Parser) parseCallExpressionArguments() []ast.Expression {
+	arguments := []ast.Expression{}
+
+	if parser.nextTokenIs(token.RPAREN) {
+		parser.advanceTokens()
+		return arguments
+	}
+
+	parser.advanceTokens()
+	arguments = append(arguments, parser.parseExpression(LOWEST))
+
+	for parser.nextTokenIs(token.COMMA) {
+		parser.advanceTokens()
+		parser.advanceTokens()
+		arguments = append(arguments, parser.parseExpression(LOWEST))
+	}
+
+	if !parser.advanceToExpectedToken(token.RPAREN) {
+		return nil
+	}
+
+	return arguments
 }
 
 func (parser *Parser) parseIntegerLiteral() ast.Expression {
