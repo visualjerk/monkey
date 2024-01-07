@@ -60,6 +60,7 @@ func New(lex *lexer.Lexer) *Parser {
 	parser.registerPrefix(token.BANG, parser.parsePrefixExpression)
 	parser.registerPrefix(token.LPAREN, parser.parseGroupedExpression)
 	parser.registerPrefix(token.IF, parser.parseIfExpression)
+	parser.registerPrefix(token.FUNCTION, parser.parseFunctionLiteral)
 
 	parser.infixParseFns = make(map[token.TokenType]infixParseFn)
 	parser.registerInfix(token.EQ, parser.parseInfixExpression)
@@ -248,7 +249,7 @@ func (parser *Parser) parseExpression(precedence operatorPrecedence) ast.Express
 	prefixFn := parser.prefixParseFns[parser.currentToken.Type]
 
 	if prefixFn == nil {
-		msg := fmt.Sprintf("no prefix parse expression for %q found", parser.currentToken.Literal)
+		msg := fmt.Sprintf("no prefix parse expression for %s found", parser.currentToken.Type)
 		parser.errors = append(parser.errors, msg)
 		return nil
 	}
@@ -294,6 +295,47 @@ func (parser *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 		Left:     left,
 		Right:    right,
 	}
+}
+
+func (parser *Parser) parseFunctionLiteral() ast.Expression {
+	functionLiteral := &ast.FunctionLiteral{
+		Token: parser.currentToken,
+	}
+
+	parser.advanceToExpectedToken(token.LPAREN)
+	parser.advanceTokens()
+
+	functionLiteral.Arguments = parser.parseFunctionArguments()
+
+	parser.advanceToExpectedToken(token.LBRACE)
+	functionLiteral.Body = parser.parseBlockStatement()
+
+	return functionLiteral
+}
+
+func (parser *Parser) parseFunctionArguments() []*ast.Identifier {
+	arguments := []*ast.Identifier{}
+
+	for !parser.currentTokenIs(")") {
+		if !parser.currentTokenIs(token.IDENT) {
+			msg := fmt.Sprintf("could not parse %q as identifier", parser.currentToken.Literal)
+			parser.errors = append(parser.errors, msg)
+			return arguments
+		}
+
+		arguments = append(arguments, &ast.Identifier{
+			Token: parser.currentToken,
+			Value: parser.currentToken.Literal,
+		})
+
+		parser.advanceTokens()
+
+		if parser.currentTokenIs(token.COMMA) {
+			parser.advanceTokens()
+		}
+	}
+
+	return arguments
 }
 
 func (parser *Parser) parseIntegerLiteral() ast.Expression {

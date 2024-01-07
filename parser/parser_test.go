@@ -10,6 +10,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type stringTestCase = struct {
+	input    string
+	expected string
+}
+
+func runStringTestCases(t *testing.T, testCases []stringTestCase) {
+	for _, testCase := range testCases {
+		parser := New(lexer.New(testCase.input))
+		program := parser.ParseProgram()
+
+		assert.Equal(t, []string(nil), parser.GetErrors())
+		assert.Equal(t, testCase.expected, program.String())
+	}
+}
+
 func TestParseProgram(t *testing.T) {
 	input := `
 	let x = 5;
@@ -219,10 +234,7 @@ func TestInfixExpression(t *testing.T) {
 }
 
 func TestOperatorPrecedenceParsing(t *testing.T) {
-	testCases := []struct {
-		input    string
-		expected string
-	}{
+	runStringTestCases(t, []stringTestCase{
 		{
 			"-a * b",
 			"((-a) * b)",
@@ -283,6 +295,11 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"-(3 + 2)",
 			"(-(3 + 2))",
 		},
+	})
+}
+
+func TestIfExpressions(t *testing.T) {
+	runStringTestCases(t, []stringTestCase{
 		{
 			"if (x < y) { x }",
 			"if (x < y) { x }",
@@ -291,15 +308,16 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"if (x < y) { x } else { y }",
 			"if (x < y) { x } else { y }",
 		},
-	}
+	})
+}
 
-	for _, testCase := range testCases {
-		parser := New(lexer.New(testCase.input))
-		program := parser.ParseProgram()
-
-		assert.Equal(t, []string(nil), parser.GetErrors())
-		assert.Equal(t, testCase.expected, program.String())
-	}
+func TestFunctionLiteral(t *testing.T) {
+	runStringTestCases(t, []stringTestCase{
+		{
+			"fn(a, b) { return a + b; }",
+			"fn(a, b) { return (a + b); }",
+		},
+	})
 }
 
 func TestParserErrors(t *testing.T) {
