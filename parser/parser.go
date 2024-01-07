@@ -160,10 +160,6 @@ func (parser *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 
 	expression := parser.parseExpression(LOWEST)
 
-	if parser.nextTokenIs(token.SEMICOLON) {
-		parser.advanceTokens()
-	}
-
 	return &ast.ExpressionStatement{
 		Token: tok,
 		Value: expression,
