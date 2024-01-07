@@ -311,15 +311,6 @@ func TestIfExpressions(t *testing.T) {
 	})
 }
 
-func TestFunctionLiteral(t *testing.T) {
-	runStringTestCases(t, []stringTestCase{
-		{
-			"fn(a, b) { return a + b; }",
-			"fn(a, b) { return (a + b); }",
-		},
-	})
-}
-
 func TestParserErrors(t *testing.T) {
 	input := `
 	let x 5;
@@ -332,6 +323,31 @@ func TestParserErrors(t *testing.T) {
 		"expected next token to be IDENT, got = instead",
 		"expected next token to be IDENT, got INT instead",
 		"expected next token to be =, got INT instead",
+	}
+
+	parser := New(lexer.New(input))
+	parser.ParseProgram()
+	actual := parser.GetErrors()
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestFunctionLiteral(t *testing.T) {
+	runStringTestCases(t, []stringTestCase{
+		{
+			"fn(a, b) { return a + b; }",
+			"fn(a, b) { return (a + b); }",
+		},
+	})
+}
+
+func TestFunctionLiteralParserErrors(t *testing.T) {
+	input := `fn(a b) return a;`
+
+	expected := []string{
+		"expected next token to be ), got IDENT instead",
+		"expected next token to be {, got IDENT instead",
+		"no prefix parse expression for ) found",
 	}
 
 	parser := New(lexer.New(input))

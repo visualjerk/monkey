@@ -303,8 +303,6 @@ func (parser *Parser) parseFunctionLiteral() ast.Expression {
 	}
 
 	parser.advanceToExpectedToken(token.LPAREN)
-	parser.advanceTokens()
-
 	functionLiteral.Arguments = parser.parseFunctionArguments()
 
 	parser.advanceToExpectedToken(token.LBRACE)
@@ -316,24 +314,20 @@ func (parser *Parser) parseFunctionLiteral() ast.Expression {
 func (parser *Parser) parseFunctionArguments() []*ast.Identifier {
 	arguments := []*ast.Identifier{}
 
-	for !parser.currentTokenIs(")") {
-		if !parser.currentTokenIs(token.IDENT) {
-			msg := fmt.Sprintf("could not parse %q as identifier", parser.currentToken.Literal)
-			parser.errors = append(parser.errors, msg)
-			return arguments
-		}
-
+	for parser.advanceToExpectedToken(token.IDENT) {
 		arguments = append(arguments, &ast.Identifier{
 			Token: parser.currentToken,
 			Value: parser.currentToken.Literal,
 		})
 
-		parser.advanceTokens()
-
-		if parser.currentTokenIs(token.COMMA) {
+		if parser.nextTokenIs(token.COMMA) {
 			parser.advanceTokens()
+		} else {
+			break
 		}
 	}
+
+	parser.advanceToExpectedToken(token.RPAREN)
 
 	return arguments
 }
