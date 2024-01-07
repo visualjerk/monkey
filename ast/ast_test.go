@@ -197,6 +197,44 @@ func TestString(t *testing.T) {
 			},
 			"fn(a, b) { return 3; }",
 		},
+		{
+			&ExpressionStatement{
+				Token: token.Token{
+					Type:    token.LBRACE,
+					Literal: "(",
+				},
+				Value: &CallExpression{
+					Token: token.Token{
+						Type:    token.LBRACE,
+						Literal: "(",
+					},
+					Function: &Identifier{
+						Token: token.Token{
+							Type:    token.IDENT,
+							Literal: "foo",
+						},
+						Value: "foo",
+					},
+					Arguments: []Expression{
+						&Identifier{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "a",
+							},
+							Value: "a",
+						},
+						&Identifier{
+							Token: token.Token{
+								Type:    token.IDENT,
+								Literal: "b",
+							},
+							Value: "b",
+						},
+					},
+				},
+			},
+			"foo(a, b)",
+		},
 	}
 
 	for _, testCase := range testCases {
