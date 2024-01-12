@@ -16,21 +16,15 @@ func TestEval(t *testing.T) {
 	}{
 		{
 			"6",
-			&object.Integer{
-				Value: 6,
-			},
+			&object.Integer{Value: 6},
 		},
 		{
 			"true",
-			&object.Boolean{
-				Value: true,
-			},
+			&object.Boolean{Value: true},
 		},
 		{
 			"false",
-			&object.Boolean{
-				Value: false,
-			},
+			&object.Boolean{Value: false},
 		},
 		{
 			"",
@@ -38,65 +32,73 @@ func TestEval(t *testing.T) {
 		},
 		{
 			"-6",
-			&object.Integer{
-				Value: -6,
-			},
+			&object.Integer{Value: -6},
 		},
 		{
 			"!true",
-			&object.Boolean{
-				Value: false,
-			},
+			&object.Boolean{Value: false},
 		},
 		{
 			"!false",
-			&object.Boolean{
-				Value: true,
-			},
+			&object.Boolean{Value: true},
 		},
 		{
 			"!!true",
-			&object.Boolean{
-				Value: true,
-			},
+			&object.Boolean{Value: true},
 		},
 		{
 			"2 + 2",
-			&object.Integer{
-				Value: 4,
-			},
+			&object.Integer{Value: 4},
 		},
 		{
 			"6 * 6",
-			&object.Integer{
-				Value: 36,
-			},
+			&object.Integer{Value: 36},
 		},
 		{
 			"44 - 2",
-			&object.Integer{
-				Value: 42,
-			},
+			&object.Integer{Value: 42},
 		},
 		{
 			"9 / 3",
-			&object.Integer{
-				Value: 3,
-			},
+			&object.Integer{Value: 3},
 		},
 		{
 			"(100 - 20) / 4 * 2 + 2",
-			&object.Integer{
-				Value: 42,
-			},
+			&object.Integer{Value: 42},
+		},
+		{
+			"9 > 3",
+			&object.Boolean{Value: true},
+		},
+		{
+			"9 < 3",
+			&object.Boolean{Value: false},
+		},
+		{
+			"3 == 3",
+			&object.Boolean{Value: true},
+		},
+		{
+			"10 == 3",
+			&object.Boolean{Value: false},
+		},
+		{
+			"10 != 3",
+			&object.Boolean{Value: true},
+		},
+		{
+			"3 != 3",
+			&object.Boolean{Value: false},
 		},
 	}
 
 	for _, testCase := range testCases {
-		parser := parser.New(lexer.New(testCase.input))
-		_, program := parser.ParseProgram()
-		actual := Eval(program)
+		t.Run(testCase.input, func(t *testing.T) {
+			parser := parser.New(lexer.New(testCase.input))
+			_, program := parser.ParseProgram()
+			actual := Eval(program)
 
-		assert.Equal(t, testCase.expected, actual)
+			assert.Equal(t, testCase.expected, actual)
+		})
 	}
 }
