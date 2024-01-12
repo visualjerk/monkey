@@ -60,6 +60,36 @@ func TestEval(t *testing.T) {
 				Value: true,
 			},
 		},
+		{
+			"2 + 2",
+			&object.Integer{
+				Value: 4,
+			},
+		},
+		{
+			"6 * 6",
+			&object.Integer{
+				Value: 36,
+			},
+		},
+		{
+			"44 - 2",
+			&object.Integer{
+				Value: 42,
+			},
+		},
+		{
+			"9 / 3",
+			&object.Integer{
+				Value: 3,
+			},
+		},
+		{
+			"(100 - 20) / 4 * 2 + 2",
+			&object.Integer{
+				Value: 42,
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
