@@ -91,12 +91,19 @@ func evalBangOperator(right object.Object) object.Object {
 }
 
 func evalInfixExpression(expression *ast.InfixExpression) object.Object {
+	operator := expression.Operator
 	left := Eval(expression.Left)
 	right := Eval(expression.Right)
 
-	switch {
-	case left.Type() == object.INTEGER_OBJECT && right.Type() == object.INTEGER_OBJECT:
-		return evalIntegerInfixExpression(expression.Operator, left, right)
+	if left.Type() == object.INTEGER_OBJECT && right.Type() == object.INTEGER_OBJECT {
+		return evalIntegerInfixExpression(operator, left, right)
+	}
+
+	switch operator {
+	case "==":
+		return nativeBoolToBooleanObject(left == right)
+	case "!=":
+		return nativeBoolToBooleanObject(left != right)
 	default:
 		return NULL
 	}

@@ -90,6 +90,22 @@ func TestEval(t *testing.T) {
 			"3 != 3",
 			&object.Boolean{Value: false},
 		},
+		{
+			"true == true",
+			&object.Boolean{Value: true},
+		},
+		{
+			"true == false",
+			&object.Boolean{Value: false},
+		},
+		{
+			"true != false",
+			&object.Boolean{Value: true},
+		},
+		{
+			"false != false",
+			&object.Boolean{Value: false},
+		},
 	}
 
 	for _, testCase := range testCases {
