@@ -61,11 +61,11 @@ func TestString(t *testing.T) {
 						Type:    token.BANG,
 						Literal: "!",
 					},
-					Operator: "+",
+					Operator: "!",
 					Right:    newIntegerLiteral(5),
 				},
 			},
-			"(+5)",
+			"(!5)",
 		},
 		{
 			&ReturnStatement{
