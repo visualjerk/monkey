@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"monkey/eval"
 	"monkey/lexer"
 	"monkey/parser"
 )
@@ -25,12 +26,17 @@ func Start(in io.Reader, out io.Writer) {
 		lex := lexer.New(line)
 		parser := parser.New(lex)
 
-		errors, output := parser.ParseProgram()
+		errors, program := parser.ParseProgram()
 
 		if errors != nil {
 			outputErrors(out, errors)
-		} else {
-			fmt.Fprintf(out, "%+v\n", output.String())
+			continue
+		}
+
+		value := eval.Eval(program)
+
+		if value != nil {
+			fmt.Fprintf(out, "%+v\n", value.Inspect())
 		}
 	}
 }
