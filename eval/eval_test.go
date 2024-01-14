@@ -106,6 +106,22 @@ func TestEval(t *testing.T) {
 			"false != false",
 			&object.Boolean{Value: false},
 		},
+		{
+			"if (true) { 5; }",
+			&object.Integer{Value: 5},
+		},
+		{
+			"if (2 < 1) { 5; }",
+			nil,
+		},
+		{
+			"if (10 == 5) { 5; } else { 10; }",
+			&object.Integer{Value: 10},
+		},
+		{
+			"if (5 - 2 > 20) { true; } else { false; }",
+			&object.Boolean{Value: false},
+		},
 	}
 
 	for _, testCase := range testCases {

@@ -18,6 +18,9 @@ func Eval(node ast.Node) object.Object {
 	case *ast.Program:
 		return evalStatements(node.Statements)
 
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
+
 	case *ast.ExpressionStatement:
 		return Eval(node.Value)
 
@@ -33,6 +36,9 @@ func Eval(node ast.Node) object.Object {
 
 	case *ast.InfixExpression:
 		return evalInfixExpression(node)
+
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 
 	}
 
@@ -134,4 +140,31 @@ func evalIntegerInfixExpression(operator string, left object.Object, right objec
 		// TODO: Handle unexpected integer operator
 		return NULL
 	}
+}
+
+func evalIfExpression(expression *ast.IfExpression) object.Object {
+	condition := Eval(expression.Condition)
+
+	if isTruthy(condition) {
+		return Eval(expression.Consequence)
+	}
+
+	if expression.Alternative != nil {
+		return Eval(expression.Alternative)
+	}
+
+	return nil
+}
+
+func isTruthy(value object.Object) bool {
+	if value == TRUE {
+		return true
+	}
+	if value == FALSE {
+		return false
+	}
+	if value == NULL {
+		return false
+	}
+	return true
 }
