@@ -16,13 +16,16 @@ func Eval(node ast.Node) object.Object {
 
 	// Statements
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalProgram(node)
 
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		return evalBlockStatement(node)
 
 	case *ast.ExpressionStatement:
 		return Eval(node.Value)
+
+	case *ast.ReturnStatement:
+		return &object.ReturnValue{Value: Eval(node.Value)}
 
 	// Expressions
 	case *ast.IntegerLiteral:
@@ -45,10 +48,27 @@ func Eval(node ast.Node) object.Object {
 	return NULL
 }
 
-func evalStatements(statements []ast.Statement) object.Object {
+func evalProgram(program *ast.Program) object.Object {
 	var result object.Object = NULL
-	for _, statement := range statements {
+	for _, statement := range program.Statements {
 		result = Eval(statement)
+
+		// Unwrap return value
+		if returnValue, ok := result.(*object.ReturnValue); ok {
+			return returnValue.Value
+		}
+	}
+	return result
+}
+
+func evalBlockStatement(blockStatement *ast.BlockStatement) object.Object {
+	var result object.Object = NULL
+	for _, statement := range blockStatement.Statements {
+		result = Eval(statement)
+
+		if returnValue, ok := result.(*object.ReturnValue); ok {
+			return returnValue
+		}
 	}
 	return result
 }
@@ -157,14 +177,14 @@ func evalIfExpression(expression *ast.IfExpression) object.Object {
 }
 
 func isTruthy(value object.Object) bool {
-	if value == TRUE {
+	switch value {
+	case TRUE:
+		return true
+	case FALSE:
+		return false
+	case NULL:
+		return false
+	default:
 		return true
 	}
-	if value == FALSE {
-		return false
-	}
-	if value == NULL {
-		return false
-	}
-	return true
 }
