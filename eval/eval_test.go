@@ -155,3 +155,33 @@ func TestEval(t *testing.T) {
 		})
 	}
 }
+
+func TestEvalErrors(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"true + true;",
+			"Error: unknown operation BOOLEAN + BOOLEAN",
+		},
+		{
+			"true + true; true;",
+			"Error: unknown operation BOOLEAN + BOOLEAN",
+		},
+		{
+			"-true;",
+			"Error: unknown operation -BOOLEAN",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.input, func(t *testing.T) {
+			parser := parser.New(lexer.New(testCase.input))
+			_, program := parser.ParseProgram()
+			actual := Eval(program)
+
+			assert.Equal(t, testCase.expected, actual.Inspect())
+		})
+	}
+}

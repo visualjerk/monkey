@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"fmt"
 	"monkey/ast"
 	"monkey/object"
 )
@@ -53,6 +54,10 @@ func evalProgram(program *ast.Program) object.Object {
 	for _, statement := range program.Statements {
 		result = Eval(statement)
 
+		if errorObject, ok := result.(*object.Error); ok {
+			return errorObject
+		}
+
 		// Unwrap return value
 		if returnValue, ok := result.(*object.ReturnValue); ok {
 			return returnValue.Value
@@ -65,6 +70,10 @@ func evalBlockStatement(blockStatement *ast.BlockStatement) object.Object {
 	var result object.Object = NULL
 	for _, statement := range blockStatement.Statements {
 		result = Eval(statement)
+
+		if errorObject, ok := result.(*object.Error); ok {
+			return errorObject
+		}
 
 		if returnValue, ok := result.(*object.ReturnValue); ok {
 			return returnValue
@@ -99,8 +108,9 @@ func evalPrefixMinusOperator(right object.Object) object.Object {
 			Value: -integer.Value,
 		}
 	}
-	// TODO: Handle unexpected usage of "-"
-	return NULL
+	return createError(
+		"unknown operation -%s", right.Type(),
+	)
 }
 
 func evalBangOperator(right object.Object) object.Object {
@@ -131,7 +141,10 @@ func evalInfixExpression(expression *ast.InfixExpression) object.Object {
 	case "!=":
 		return nativeBoolToBooleanObject(left != right)
 	default:
-		return NULL
+		return createError(
+			"unknown operation %s %s %s",
+			left.Type(), operator, right.Type(),
+		)
 	}
 }
 
@@ -157,8 +170,10 @@ func evalIntegerInfixExpression(operator string, left object.Object, right objec
 	case "!=":
 		return nativeBoolToBooleanObject(leftValue != rightValue)
 	default:
-		// TODO: Handle unexpected integer operator
-		return NULL
+		return createError(
+			"unknown integer operation %s %s %s",
+			left.Type(), operator, right.Type(),
+		)
 	}
 }
 
@@ -186,5 +201,11 @@ func isTruthy(value object.Object) bool {
 		return false
 	default:
 		return true
+	}
+}
+
+func createError(format string, a ...any) *object.Error {
+	return &object.Error{
+		Message: fmt.Sprintf(format, a...),
 	}
 }
