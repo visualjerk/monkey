@@ -143,13 +143,21 @@ func TestEval(t *testing.T) {
 			}`,
 			&object.Integer{Value: 10},
 		},
+		{
+			"let x = 5; x;",
+			&object.Integer{Value: 5},
+		},
+		{
+			"let x = 5; let y = 2; x * y;",
+			&object.Integer{Value: 10},
+		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.input, func(t *testing.T) {
 			parser := parser.New(lexer.New(testCase.input))
 			_, program := parser.ParseProgram()
-			actual := Eval(program)
+			actual := Eval(program, object.NewEnvironment())
 
 			assert.Equal(t, testCase.expected, actual)
 		})
@@ -185,13 +193,17 @@ func TestEvalErrors(t *testing.T) {
 			"if (10 > 1) { true + false; }",
 			"Error: unknown operation BOOLEAN + BOOLEAN",
 		},
+		{
+			"let a = 5; b;",
+			"Error: identifier not found b",
+		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.input, func(t *testing.T) {
 			parser := parser.New(lexer.New(testCase.input))
 			_, program := parser.ParseProgram()
-			actual := Eval(program)
+			actual := Eval(program, object.NewEnvironment())
 
 			assert.Equal(t, testCase.expected, actual.Inspect())
 		})
