@@ -26,7 +26,11 @@ func Eval(node ast.Node) object.Object {
 		return Eval(node.Value)
 
 	case *ast.ReturnStatement:
-		return &object.ReturnValue{Value: Eval(node.Value)}
+		value := Eval(node.Value)
+		if isError(value) {
+			return value
+		}
+		return &object.ReturnValue{Value: value}
 
 	// Expressions
 	case *ast.IntegerLiteral:
@@ -54,13 +58,12 @@ func evalProgram(program *ast.Program) object.Object {
 	for _, statement := range program.Statements {
 		result = Eval(statement)
 
-		if errorObject, ok := result.(*object.Error); ok {
-			return errorObject
-		}
-
-		// Unwrap return value
-		if returnValue, ok := result.(*object.ReturnValue); ok {
-			return returnValue.Value
+		switch result := result.(type) {
+		case *object.Error:
+			return result
+		case *object.ReturnValue:
+			// Unwrap return value
+			return result.Value
 		}
 	}
 	return result
@@ -71,12 +74,8 @@ func evalBlockStatement(blockStatement *ast.BlockStatement) object.Object {
 	for _, statement := range blockStatement.Statements {
 		result = Eval(statement)
 
-		if errorObject, ok := result.(*object.Error); ok {
-			return errorObject
-		}
-
-		if returnValue, ok := result.(*object.ReturnValue); ok {
-			return returnValue
+		if result.Type() == object.ERROR_OBJECT || result.Type() == object.RETURN_VALUE_OBJECT {
+			return result
 		}
 	}
 	return result
@@ -91,6 +90,9 @@ func nativeBoolToBooleanObject(input bool) *object.Boolean {
 
 func evalPrefixExpression(expression *ast.PrefixExpression) object.Object {
 	right := Eval(expression.Right)
+	if isError(right) {
+		return right
+	}
 
 	switch expression.Operator {
 	case "-":
@@ -129,10 +131,24 @@ func evalBangOperator(right object.Object) object.Object {
 func evalInfixExpression(expression *ast.InfixExpression) object.Object {
 	operator := expression.Operator
 	left := Eval(expression.Left)
+	if isError(left) {
+		return left
+	}
+
 	right := Eval(expression.Right)
+	if isError(right) {
+		return right
+	}
 
 	if left.Type() == object.INTEGER_OBJECT && right.Type() == object.INTEGER_OBJECT {
 		return evalIntegerInfixExpression(operator, left, right)
+	}
+
+	if left.Type() != right.Type() {
+		return createError(
+			"type mismatch %s %s %s",
+			left.Type(), operator, right.Type(),
+		)
 	}
 
 	switch operator {
@@ -179,6 +195,9 @@ func evalIntegerInfixExpression(operator string, left object.Object, right objec
 
 func evalIfExpression(expression *ast.IfExpression) object.Object {
 	condition := Eval(expression.Condition)
+	if isError(condition) {
+		return condition
+	}
 
 	if isTruthy(condition) {
 		return Eval(expression.Consequence)
@@ -208,4 +227,8 @@ func createError(format string, a ...any) *object.Error {
 	return &object.Error{
 		Message: fmt.Sprintf(format, a...),
 	}
+}
+
+func isError(value object.Object) bool {
+	return value != nil && value.Type() == object.ERROR_OBJECT
 }

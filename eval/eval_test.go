@@ -173,6 +173,18 @@ func TestEvalErrors(t *testing.T) {
 			"-true;",
 			"Error: unknown operation -BOOLEAN",
 		},
+		{
+			"5 + true;",
+			"Error: type mismatch INTEGER + BOOLEAN",
+		},
+		{
+			"5 + true; 5;",
+			"Error: type mismatch INTEGER + BOOLEAN",
+		},
+		{
+			"if (10 > 1) { true + false; }",
+			"Error: unknown operation BOOLEAN + BOOLEAN",
+		},
 	}
 
 	for _, testCase := range testCases {
