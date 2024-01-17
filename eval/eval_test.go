@@ -151,6 +151,10 @@ func TestEval(t *testing.T) {
 			"let x = 5; let y = 2; x * y;",
 			&object.Integer{Value: 10},
 		},
+		{
+			"let x = 5;",
+			nil,
+		},
 	}
 
 	for _, testCase := range testCases {

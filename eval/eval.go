@@ -95,14 +95,7 @@ func evalLetStatement(letStatement *ast.LetStatement, env *object.Environment) o
 
 	env.Set(letStatement.Name.Value, value)
 
-	return value
-}
-
-func nativeBoolToBooleanObject(input bool) *object.Boolean {
-	if input {
-		return TRUE
-	}
-	return FALSE
+	return nil
 }
 
 func evalIdentifier(identifier *ast.Identifier, env *object.Environment) object.Object {
@@ -233,6 +226,13 @@ func evalIfExpression(expression *ast.IfExpression, env *object.Environment) obj
 	}
 
 	return nil
+}
+
+func nativeBoolToBooleanObject(input bool) *object.Boolean {
+	if input {
+		return TRUE
+	}
+	return FALSE
 }
 
 func isTruthy(value object.Object) bool {
