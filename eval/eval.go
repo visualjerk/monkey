@@ -77,10 +77,14 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 
 func evalBlockStatement(blockStatement *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object = NULL
-	for _, statement := range blockStatement.Statements {
-		result = Eval(statement, env)
 
-		if result.Type() == object.ERROR_OBJECT || result.Type() == object.RETURN_VALUE_OBJECT {
+	innerEnv := object.NewEnvironment()
+	innerEnv.Merge(env)
+
+	for _, statement := range blockStatement.Statements {
+		result = Eval(statement, innerEnv)
+
+		if result != nil && (result.Type() == object.ERROR_OBJECT || result.Type() == object.RETURN_VALUE_OBJECT) {
 			return result
 		}
 	}

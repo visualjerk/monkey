@@ -155,6 +155,14 @@ func TestEval(t *testing.T) {
 			"let x = 5;",
 			nil,
 		},
+		{
+			"if (true) { let a = 5; a; };",
+			&object.Integer{Value: 5},
+		},
+		{
+			"let a = 7; if (true) { a; };",
+			&object.Integer{Value: 7},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -175,31 +183,35 @@ func TestEvalErrors(t *testing.T) {
 	}{
 		{
 			"true + true;",
-			"Error: unknown operation BOOLEAN + BOOLEAN",
+			"unknown operation BOOLEAN + BOOLEAN",
 		},
 		{
 			"true + true; true;",
-			"Error: unknown operation BOOLEAN + BOOLEAN",
+			"unknown operation BOOLEAN + BOOLEAN",
 		},
 		{
 			"-true;",
-			"Error: unknown operation -BOOLEAN",
+			"unknown operation -BOOLEAN",
 		},
 		{
 			"5 + true;",
-			"Error: type mismatch INTEGER + BOOLEAN",
+			"type mismatch INTEGER + BOOLEAN",
 		},
 		{
 			"5 + true; 5;",
-			"Error: type mismatch INTEGER + BOOLEAN",
+			"type mismatch INTEGER + BOOLEAN",
 		},
 		{
 			"if (10 > 1) { true + false; }",
-			"Error: unknown operation BOOLEAN + BOOLEAN",
+			"unknown operation BOOLEAN + BOOLEAN",
 		},
 		{
 			"let a = 5; b;",
-			"Error: identifier not found b",
+			"identifier not found b",
+		},
+		{
+			"if (true) { let a = 5; }; a;",
+			"identifier not found a",
 		},
 	}
 
@@ -209,7 +221,7 @@ func TestEvalErrors(t *testing.T) {
 			_, program := parser.ParseProgram()
 			actual := Eval(program, object.NewEnvironment())
 
-			assert.Equal(t, testCase.expected, actual.Inspect())
+			assert.Equal(t, "Error: "+testCase.expected, actual.Inspect())
 		})
 	}
 }
