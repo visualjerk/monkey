@@ -81,8 +81,7 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 func evalBlockStatement(blockStatement *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object = NULL
 
-	innerEnv := object.NewEnvironment()
-	innerEnv.Merge(env)
+	innerEnv := object.NewEnclosedEnvironment(env)
 
 	for _, statement := range blockStatement.Statements {
 		result = Eval(statement, innerEnv)
