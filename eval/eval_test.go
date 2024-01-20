@@ -1,9 +1,11 @@
 package eval
 
 import (
+	"monkey/ast"
 	"monkey/lexer"
 	"monkey/object"
 	"monkey/parser"
+	"monkey/token"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -162,6 +164,32 @@ func TestEval(t *testing.T) {
 		{
 			"let a = 7; if (true) { a; };",
 			&object.Integer{Value: 7},
+		},
+		{
+			"fn (a) { return a; }",
+			&object.Function{
+				Parameters: []*ast.Identifier{
+					{Token: token.Token{Type: token.IDENT, Literal: "a"}, Value: "a"},
+				},
+				Body: &ast.BlockStatement{
+					Token: token.Token{
+						Type:    token.LBRACE,
+						Literal: "{",
+					},
+					Statements: []ast.Statement{
+						&ast.ReturnStatement{
+							Token: token.Token{
+								Type:    token.RETURN,
+								Literal: "return",
+							},
+							Value: &ast.Identifier{
+								Token: token.Token{Type: token.IDENT, Literal: "a"}, Value: "a",
+							},
+						},
+					},
+				},
+				Env: object.NewEnvironment(),
+			},
 		},
 	}
 

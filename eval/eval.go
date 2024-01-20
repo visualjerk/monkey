@@ -54,6 +54,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
 
+	case *ast.FunctionLiteral:
+		return evalFunctionLiteral(node, env)
+
 	}
 
 	return NULL
@@ -230,6 +233,16 @@ func evalIfExpression(expression *ast.IfExpression, env *object.Environment) obj
 	}
 
 	return nil
+}
+
+func evalFunctionLiteral(expression *ast.FunctionLiteral, env *object.Environment) object.Object {
+	function := &object.Function{
+		Parameters: expression.Parameters,
+		Body:       expression.Body,
+		Env:        env,
+	}
+
+	return function
 }
 
 func nativeBoolToBooleanObject(input bool) *object.Boolean {
