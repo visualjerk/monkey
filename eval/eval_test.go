@@ -188,8 +188,16 @@ func TestEval(t *testing.T) {
 						},
 					},
 				},
-				Env: object.NewEnvironment(),
+				Env: object.NewEnclosedEnvironment(object.NewEnvironment()),
 			},
+		},
+		{
+			"fn (a, b) { return a + b; }(7, 3)",
+			&object.Integer{Value: 10},
+		},
+		{
+			"let sum = fn (a, b) { return a + b; }; sum(10, sum(5, 5));",
+			&object.Integer{Value: 20},
 		},
 	}
 
@@ -240,6 +248,18 @@ func TestEvalErrors(t *testing.T) {
 		{
 			"if (true) { let a = 5; }; a;",
 			"identifier not found a",
+		},
+		{
+			"foo(10)",
+			"identifier not found foo",
+		},
+		{
+			"5(10)",
+			"invalid function call on 5",
+		},
+		{
+			"fn(a, b) { a + b; }(2)",
+			"expected 2 arguments got only 1",
 		},
 	}
 

@@ -57,6 +57,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.FunctionLiteral:
 		return evalFunctionLiteral(node, env)
 
+	case *ast.CallExpression:
+		return evalCallExpression(node, env)
+
 	}
 
 	return NULL
@@ -238,10 +241,49 @@ func evalFunctionLiteral(expression *ast.FunctionLiteral, env *object.Environmen
 	function := &object.Function{
 		Parameters: expression.Parameters,
 		Body:       expression.Body,
-		Env:        env,
+		Env:        object.NewEnclosedEnvironment(env),
 	}
 
 	return function
+}
+
+func evalCallExpression(expression *ast.CallExpression, env *object.Environment) object.Object {
+	function := Eval(expression.Function, env)
+
+	if isError(function) {
+		return function
+	}
+
+	functionObj, ok := function.(*object.Function)
+
+	if !ok {
+		return newError("invalid function call on %s", function.Inspect())
+	}
+
+	callEnv := object.NewEnclosedEnvironment(functionObj.Env)
+
+	if len(expression.Arguments) < len(functionObj.Parameters) {
+		return newError("expected %d arguments got only %d", len(functionObj.Parameters), len(expression.Arguments))
+	}
+
+	for index, param := range functionObj.Parameters {
+		argument := Eval(expression.Arguments[index], env)
+
+		if isError(argument) {
+			return argument
+		}
+
+		callEnv.Set(param.Value, argument)
+	}
+
+	result := Eval(functionObj.Body, callEnv)
+	returnValue, ok := result.(*object.ReturnValue)
+	if ok {
+		// Unwrap return value
+		return returnValue.Value
+	}
+
+	return result
 }
 
 func nativeBoolToBooleanObject(input bool) *object.Boolean {
