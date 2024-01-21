@@ -260,11 +260,11 @@ func evalCallExpression(expression *ast.CallExpression, env *object.Environment)
 		return newError("invalid function call on %s", function.Inspect())
 	}
 
-	callEnv := object.NewEnclosedEnvironment(functionObj.Env)
-
 	if len(expression.Arguments) < len(functionObj.Parameters) {
 		return newError("expected %d arguments got only %d", len(functionObj.Parameters), len(expression.Arguments))
 	}
+
+	callEnv := object.NewEnclosedEnvironment(functionObj.Env)
 
 	for index, param := range functionObj.Parameters {
 		argument := Eval(expression.Arguments[index], env)
