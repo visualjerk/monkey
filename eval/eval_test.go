@@ -199,6 +199,10 @@ func TestEval(t *testing.T) {
 			"let sum = fn (a, b) { return a + b; }; sum(10, sum(5, 5));",
 			&object.Integer{Value: 20},
 		},
+		{
+			"fn (a, b) { return a + b; }(1, 2); 10;",
+			&object.Integer{Value: 10},
+		},
 	}
 
 	for _, testCase := range testCases {
